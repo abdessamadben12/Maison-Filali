@@ -1,0 +1,284 @@
+{
+    "images/cat-takchitas.jpg": {
+        "width": 550,
+        "height": 760,
+        "hash": "c366b6ae5616b160a087f3f7d2431d81cab69dd0dfc4bce0a28d82cc96d721f9",
+        "variants": {
+            "128": "images/optimized/f045db10bb8c226dd6cd7656-128.webp",
+            "480": "images/optimized/f045db10bb8c226dd6cd7656-480.webp",
+            "550": "images/optimized/f045db10bb8c226dd6cd7656-550.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 113275
+    },
+    "images/catalogue-banner.png": {
+        "width": 1440,
+        "height": 300,
+        "hash": "a468b289d3739862237607154d1b8aa2d4c06e23d91b0042919ed9dec22b9902",
+        "variants": {
+            "128": "images/optimized/3bc11bd4e577061c26c9286b-128.webp",
+            "480": "images/optimized/3bc11bd4e577061c26c9286b-480.webp",
+            "960": "images/optimized/3bc11bd4e577061c26c9286b-960.webp",
+            "1440": "images/optimized/3bc11bd4e577061c26c9286b-1440.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 50453
+    },
+    "images/hero.jpg": {
+        "width": 1440,
+        "height": 823,
+        "hash": "587799210f3a91446c3cade4a4f690e37e9323b140162a1c89ee54012ef0ca9a",
+        "variants": {
+            "128": "images/optimized/5b73c6c50158c9d900de31cf-128.webp",
+            "480": "images/optimized/5b73c6c50158c9d900de31cf-480.webp",
+            "960": "images/optimized/5b73c6c50158c9d900de31cf-960.webp",
+            "1440": "images/optimized/5b73c6c50158c9d900de31cf-1440.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 246714
+    },
+    "images/login-photo.png": {
+        "width": 384,
+        "height": 512,
+        "hash": "9f24697d2bc94dde4353c819ac04c42426d2f016f9ec687ff26aa9f2bb232841",
+        "variants": {
+            "128": "images/optimized/2b5bfb49c34742cd08754dd0-128.webp",
+            "384": "images/optimized/2b5bfb49c34742cd08754dd0-384.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 410102
+    },
+    "images/logo.png": {
+        "width": 400,
+        "height": 400,
+        "hash": "ac07fe2fd4ba73272e3165e9e68b1222bc512be4270b4bf2b3ac87245917ab7a",
+        "variants": {
+            "128": "images/optimized/f36f8cd9abee0659d5673fb6-128.webp",
+            "400": "images/optimized/f36f8cd9abee0659d5673fb6-400.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 180907
+    },
+    "images/map.png": {
+        "width": 620,
+        "height": 380,
+        "hash": "3f2378161d8c5e54da9155404fc323bb52f0c10ab7aad80dfa300e608921ce7a",
+        "variants": {
+            "128": "images/optimized/c4e3041bd200017d70895b87-128.webp",
+            "480": "images/optimized/c4e3041bd200017d70895b87-480.webp",
+            "620": "images/optimized/c4e3041bd200017d70895b87-620.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 30976
+    },
+    "images/sur-mesure.png": {
+        "width": 296,
+        "height": 560,
+        "hash": "d90f1ee232afbac8ca71ec6f2ddbb3ded8efc5a4f73135ac4dd6d4a78105d3fd",
+        "variants": {
+            "128": "images/optimized/2c777e6dcdd56343df4f0653-128.webp",
+            "296": "images/optimized/2c777e6dcdd56343df4f0653-296.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 37337
+    },
+    "images/zellige-tile.png": {
+        "width": 720,
+        "height": 900,
+        "hash": "5f919868cacfdbe99347b00756ef60815db3cbaa820eaa022dd944624367b1b0",
+        "variants": {
+            "128": "images/optimized/5c0e9a83f44c93798f8ba88a-128.webp",
+            "480": "images/optimized/5c0e9a83f44c93798f8ba88a-480.webp",
+            "720": "images/optimized/5c0e9a83f44c93798f8ba88a-720.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 95506
+    },
+    "images/zellige.png": {
+        "width": 1440,
+        "height": 300,
+        "hash": "64c981666c87fe23ded5234ec9cfe8ea33bbaef96167ae12c9ea31ca8d497cfe",
+        "variants": {
+            "128": "images/optimized/43edb1fc2a4bfc07428e80ea-128.webp",
+            "480": "images/optimized/43edb1fc2a4bfc07428e80ea-480.webp",
+            "960": "images/optimized/43edb1fc2a4bfc07428e80ea-960.webp",
+            "1440": "images/optimized/43edb1fc2a4bfc07428e80ea-1440.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 48655
+    },
+    "uploads/categories/babouches.jpg": {
+        "width": 720,
+        "height": 960,
+        "hash": "a992e641401b02dbe94830a69fe8e9e2254cf67e7909d0d244bbb16b5cfa7b7f",
+        "variants": {
+            "128": "images/optimized/f5dd118922cc2ff28b5994af-128.webp",
+            "480": "images/optimized/f5dd118922cc2ff28b5994af-480.webp",
+            "720": "images/optimized/f5dd118922cc2ff28b5994af-720.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 122975
+    },
+    "uploads/categories/caftans.jpg": {
+        "width": 330,
+        "height": 440,
+        "hash": "e6850828735250df7d360d79a4ea6844b65e1cd718fbd768edd85e6ea5590fc4",
+        "variants": {
+            "128": "images/optimized/1c0519cf05e4b9c14c709e3c-128.webp",
+            "330": "images/optimized/1c0519cf05e4b9c14c709e3c-330.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 49721
+    },
+    "uploads/categories/djellabas.jpg": {
+        "width": 550,
+        "height": 760,
+        "hash": "eec2c901b9d3cd79179fdff1549330cae236cc0f37815f853fa1b08dd5f2e1e4",
+        "variants": {
+            "128": "images/optimized/ae69ea3659027bb7c24c0081-128.webp",
+            "480": "images/optimized/ae69ea3659027bb7c24c0081-480.webp",
+            "550": "images/optimized/ae69ea3659027bb7c24c0081-550.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 84830
+    },
+    "uploads/categories/takchitas.jpg": {
+        "width": 550,
+        "height": 760,
+        "hash": "c366b6ae5616b160a087f3f7d2431d81cab69dd0dfc4bce0a28d82cc96d721f9",
+        "variants": {
+            "128": "images/optimized/3fdd15135d871310db3c39f8-128.webp",
+            "480": "images/optimized/3fdd15135d871310db3c39f8-480.webp",
+            "550": "images/optimized/3fdd15135d871310db3c39f8-550.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 113275
+    },
+    "uploads/products/babouches-ajourees-fuchsia-1.png": {
+        "width": 195,
+        "height": 255,
+        "hash": "0bd3276ef790f2b5c499b36d1823337446e8cb5766215e1d2228ba4b73e71f19",
+        "variants": {
+            "128": "images/optimized/00706cc3d5e0b6326dd2bbcd-128.webp",
+            "195": "images/optimized/00706cc3d5e0b6326dd2bbcd-195.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 70609
+    },
+    "uploads/products/babouches-ajourees-rose-1.png": {
+        "width": 193,
+        "height": 265,
+        "hash": "5aa0f03f33080172745a7e7aef34f1c46f9cc09554867e9314e03f30b31d3a42",
+        "variants": {
+            "128": "images/optimized/90df84f0f23f77edda32dc8c-128.webp",
+            "193": "images/optimized/90df84f0f23f77edda32dc8c-193.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 76175
+    },
+    "uploads/products/babouches-filali-bordeaux-1.jpg": {
+        "width": 720,
+        "height": 960,
+        "hash": "85d1b745c9750462493e1f94e70f59b3bdb3b32b261ab4de521e3fbac419db70",
+        "variants": {
+            "128": "images/optimized/26df8b11d3d501514f12b533-128.webp",
+            "480": "images/optimized/26df8b11d3d501514f12b533-480.webp",
+            "720": "images/optimized/26df8b11d3d501514f12b533-720.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 170737
+    },
+    "uploads/products/babouches-filali-bordeaux-2.jpg": {
+        "width": 720,
+        "height": 960,
+        "hash": "a992e641401b02dbe94830a69fe8e9e2254cf67e7909d0d244bbb16b5cfa7b7f",
+        "variants": {
+            "128": "images/optimized/57d1d0c3b76dea9206569d1d-128.webp",
+            "480": "images/optimized/57d1d0c3b76dea9206569d1d-480.webp",
+            "720": "images/optimized/57d1d0c3b76dea9206569d1d-720.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 122975
+    },
+    "uploads/products/caftan-emeraude-brode-1.jpg": {
+        "width": 330,
+        "height": 440,
+        "hash": "e6850828735250df7d360d79a4ea6844b65e1cd718fbd768edd85e6ea5590fc4",
+        "variants": {
+            "128": "images/optimized/7a4014e21c2d19c3d37bbc6f-128.webp",
+            "330": "images/optimized/7a4014e21c2d19c3d37bbc6f-330.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 49721
+    },
+    "uploads/products/caftan-velours-lalla-1.jpg": {
+        "width": 600,
+        "height": 800,
+        "hash": "181f62b41d9867d7fdd1ace48d570026da842a5fe2b41e75e0dfca03b812a197",
+        "variants": {
+            "128": "images/optimized/7a07aaec1b16b84065438416-128.webp",
+            "480": "images/optimized/7a07aaec1b16b84065438416-480.webp",
+            "600": "images/optimized/7a07aaec1b16b84065438416-600.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 60073
+    },
+    "uploads/products/caftan-velours-lalla-2.jpg": {
+        "width": 900,
+        "height": 1200,
+        "hash": "920d8ef700edf1cb2aa83328c504dbc2d73a2bdb21cd46d913a0c99abb8ef0a1",
+        "variants": {
+            "128": "images/optimized/e984b4fdf25829f83ffbecb2-128.webp",
+            "480": "images/optimized/e984b4fdf25829f83ffbecb2-480.webp",
+            "900": "images/optimized/e984b4fdf25829f83ffbecb2-900.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 138898
+    },
+    "uploads/products/caftan-velours-lalla-3.jpg": {
+        "width": 300,
+        "height": 400,
+        "hash": "1c91ed11efea5341e34d93781674b0c2834a9a78e7f6456e888da7faadcf25bc",
+        "variants": {
+            "128": "images/optimized/807b7571d3cc47559b7768dd-128.webp",
+            "300": "images/optimized/807b7571d3cc47559b7768dd-300.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 22115
+    },
+    "uploads/products/caftan-velours-lalla-4.jpg": {
+        "width": 370,
+        "height": 493,
+        "hash": "1b1059dfc4f5cb3501b8985729a9d96960a59624d53e39edcd692a0fad8fd645",
+        "variants": {
+            "128": "images/optimized/8310dfae9fe575b290ff85fd-128.webp",
+            "370": "images/optimized/8310dfae9fe575b290ff85fd-370.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 27491
+    },
+    "uploads/products/djellaba-ivoire-1.jpg": {
+        "width": 550,
+        "height": 760,
+        "hash": "eec2c901b9d3cd79179fdff1549330cae236cc0f37815f853fa1b08dd5f2e1e4",
+        "variants": {
+            "128": "images/optimized/07361d2d420b149f8a82d39c-128.webp",
+            "480": "images/optimized/07361d2d420b149f8a82d39c-480.webp",
+            "550": "images/optimized/07361d2d420b149f8a82d39c-550.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 84830
+    },
+    "uploads/products/takchita-bordeaux-royale-1.jpg": {
+        "width": 550,
+        "height": 760,
+        "hash": "c366b6ae5616b160a087f3f7d2431d81cab69dd0dfc4bce0a28d82cc96d721f9",
+        "variants": {
+            "128": "images/optimized/4d2dacb27cbe039a9456eb65-128.webp",
+            "480": "images/optimized/4d2dacb27cbe039a9456eb65-480.webp",
+            "550": "images/optimized/4d2dacb27cbe039a9456eb65-550.webp"
+        },
+        "mtime": 1793180088,
+        "bytes": 113275
+    }
+}
