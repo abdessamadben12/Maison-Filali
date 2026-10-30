@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-use Closure;
 use RuntimeException;
 
 class Order extends Model
@@ -31,6 +30,7 @@ class Order extends Model
     protected $fillable = [
         'number', 'customer_id', 'user_id', 'customer_name', 'phone', 'city', 'address', 'status', 'total',
         'admin_note', 'stock_deducted', 'confirmed_at', 'shipped_at', 'delivered_at', 'cancelled_at',
+        'handled_by_id', 'call_attempts', 'last_call_at',
     ];
 
     protected $casts = [
@@ -39,6 +39,7 @@ class Order extends Model
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'last_call_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -69,6 +70,12 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Membre de l'équipe qui a confirmé ou annulé la commande. */
+    public function handledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'handled_by_id');
     }
 
     public function scopeStatus(Builder $q, string $status): Builder
@@ -113,14 +120,9 @@ class Order extends Model
     /** Vérifie que le stock suffit pour confirmer (renvoie la liste des problèmes). */
     public function stockProblems(): array
     {
-        $this->loadMissing('items.variant');
         $problems = [];
         foreach ($this->items as $item) {
-            if ($item->is_custom) {
-                continue;
-            }
-            if (! $item->variant) {
-                $problems[] = "{$item->product_name} : variante supprimée";
+            if ($item->is_custom || ! $item->variant) {
                 continue;
             }
             if ($item->variant->stock < $item->quantity) {
@@ -133,71 +135,71 @@ class Order extends Model
 
     public function confirm(): void
     {
-        $this->transition(function (Order $order) {
-            if ($order->status !== 'en_attente') {
-                throw new RuntimeException('Seule une commande en attente peut être confirmée.');
-            }
-            if ($problems = $order->stockProblems()) {
-                throw new RuntimeException('Stock insuffisant : '.implode(' ; ', $problems));
-            }
-            foreach ($order->items->sortBy('product_variant_id') as $item) {
+        if ($this->status !== 'en_attente') {
+            throw new RuntimeException('Seule une commande en attente peut être confirmée.');
+        }
+        if ($problems = $this->stockProblems()) {
+            throw new RuntimeException('Stock insuffisant : '.implode(' ; ', $problems));
+        }
+
+        DB::transaction(function () {
+            foreach ($this->items as $item) {
                 if (! $item->is_custom && $item->variant) {
-                    $item->variant->adjustStock(-$item->quantity, 'commande', $order->number, $order->id);
+                    $item->variant->adjustStock(-$item->quantity, 'commande', $this->number, $this->id);
                 }
             }
-            $order->update(['status' => 'confirmee', 'confirmed_at' => now(), 'stock_deducted' => true]);
+            $this->update(['status' => 'confirmee', 'confirmed_at' => now(), 'stock_deducted' => true, 'handled_by_id' => auth()->id() ?? $this->handled_by_id]);
         });
+    }
+
+    /** Appel sans réponse : la commande reste « en attente », la tentative est notée. */
+    public function noAnswer(?string $note = null): void
+    {
+        if ($this->status !== 'en_attente') {
+            throw new RuntimeException('Seule une commande en attente peut être rappelée.');
+        }
+        $line = now()->format('d/m H:i').' · '.(auth()->user()?->name ?? 'Équipe').' : injoignable'.($note ? ' — '.$note : '');
+        $this->update([
+            'call_attempts' => $this->call_attempts + 1,
+            'last_call_at' => now(),
+            'admin_note' => trim(($this->admin_note ? $this->admin_note."\n" : '').$line),
+        ]);
     }
 
     public function ship(): void
     {
-        $this->transition(function (Order $order) {
-            if ($order->status !== 'confirmee') {
-                throw new RuntimeException('La commande doit être confirmée avant d’être expédiée.');
-            }
-            $order->update(['status' => 'expediee', 'shipped_at' => now()]);
-        });
+        if ($this->status !== 'confirmee') {
+            throw new RuntimeException('La commande doit être confirmée avant d’être expédiée.');
+        }
+        $this->update(['status' => 'expediee', 'shipped_at' => now()]);
     }
 
     public function deliver(): void
     {
-        $this->transition(function (Order $order) {
-            if ($order->status !== 'expediee') {
-                throw new RuntimeException('La commande doit être expédiée avant d’être livrée.');
-            }
-            $order->update(['status' => 'livree', 'delivered_at' => now()]);
-        });
+        if ($this->status !== 'expediee') {
+            throw new RuntimeException('La commande doit être expédiée avant d’être livrée.');
+        }
+        $this->update(['status' => 'livree', 'delivered_at' => now()]);
     }
 
     public function cancel(): void
     {
-        $this->transition(function (Order $order) {
-            if (in_array($order->status, ['livree', 'annulee'], true)) {
-                throw new RuntimeException('Cette commande ne peut plus être annulée.');
-            }
-            if ($order->stock_deducted) {
-                $order->loadMissing('items.variant');
-                foreach ($order->items->sortBy('product_variant_id') as $item) {
+        if (in_array($this->status, ['livree', 'annulee'], true)) {
+            throw new RuntimeException('Cette commande ne peut plus être annulée.');
+        }
+        if (auth()->user()?->isConfirmateur() && $this->status !== 'en_attente') {
+            throw new RuntimeException('Seul le gérant peut annuler une commande déjà confirmée.');
+        }
+
+        DB::transaction(function () {
+            if ($this->stock_deducted) {
+                foreach ($this->items as $item) {
                     if (! $item->is_custom && $item->variant) {
-                        $item->variant->adjustStock($item->quantity, 'annulation', $order->number, $order->id);
+                        $item->variant->adjustStock($item->quantity, 'annulation', $this->number, $this->id);
                     }
                 }
             }
-            $order->update(['status' => 'annulee', 'cancelled_at' => now(), 'stock_deducted' => false]);
+            $this->update(['status' => 'annulee', 'cancelled_at' => now(), 'stock_deducted' => false, 'handled_by_id' => auth()->id() ?? $this->handled_by_id]);
         });
-    }
-
-    private function transition(Closure $change): void
-    {
-        DB::transaction(function () use ($change) {
-            // Acquire the SQLite write lock before reading the current status.
-            // Other drivers use the row lock below.
-            if (DB::getDriverName() === 'sqlite') {
-                static::whereKey($this->id)->update(['status' => DB::raw('status')]);
-            }
-            $order = static::query()->lockForUpdate()->findOrFail($this->id);
-            $change($order);
-        }, 3);
-        $this->refresh();
     }
 }

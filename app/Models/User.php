@@ -14,7 +14,13 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'phone', 'city', 'address', 'password', 'is_admin'];
+    /** Rôles de l'équipe (administration). */
+    public const ROLES = [
+        'gerant' => 'Gérant — accès complet',
+        'confirmateur' => 'Confirmateur — confirmation des commandes uniquement',
+    ];
+
+    protected $fillable = ['name', 'email', 'phone', 'city', 'address', 'password', 'is_admin', 'role'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -32,9 +38,32 @@ class User extends Authenticatable implements FilamentUser
         return $this->is_admin;
     }
 
+    /** Accès complet à l'administration. */
+    public function isGerant(): bool
+    {
+        return $this->is_admin && $this->role !== 'confirmateur';
+    }
+
+    /** Société de confirmation : voit et traite uniquement les commandes à confirmer. */
+    public function isConfirmateur(): bool
+    {
+        return $this->is_admin && $this->role === 'confirmateur';
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return $this->isConfirmateur() ? 'Confirmateur' : 'Gérant';
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /** Commandes confirmées / annulées par ce membre de l'équipe. */
+    public function handledOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'handled_by_id');
     }
 
     public function customer(): HasOne

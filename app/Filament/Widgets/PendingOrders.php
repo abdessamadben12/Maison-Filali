@@ -18,6 +18,11 @@ class PendingOrders extends TableWidget
 
     protected int|string|array $columnSpan = ['default' => 1, 'lg' => 2];
 
+    public function getColumnSpan(): int|string|array
+    {
+        return auth()->user()?->isConfirmateur() ? 'full' : $this->columnSpan;
+    }
+
     protected static ?string $heading = 'Commandes à confirmer';
 
     public function table(Table $table): Table
@@ -25,6 +30,7 @@ class PendingOrders extends TableWidget
         return $table
             ->query(Order::query()->status('en_attente')->with('items.product')->latest())
             ->heading('Commandes à confirmer')
+            ->poll('10s')
             ->paginated([5])
             ->emptyStateHeading('Aucune commande en attente')
             ->emptyStateDescription('Les nouvelles commandes du site apparaîtront ici.')

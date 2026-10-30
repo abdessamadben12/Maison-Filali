@@ -12,6 +12,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /** Compteurs de tâches à faire (pas de statistiques de vente). */
 class TodoOverview extends StatsOverviewWidget
 {
+    public static function canView(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     protected static ?int $sort = 1;
 
     protected int|string|array $columnSpan = 'full';

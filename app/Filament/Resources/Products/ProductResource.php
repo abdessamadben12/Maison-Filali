@@ -50,6 +50,12 @@ class ProductResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     public static function form(Schema $schema): Schema
     {
         $colorOptions = fn () => Color::orderBy('position')->get()

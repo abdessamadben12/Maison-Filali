@@ -31,6 +31,12 @@ class SizeResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([

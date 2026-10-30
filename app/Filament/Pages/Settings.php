@@ -34,6 +34,12 @@ class Settings extends Page
 
     protected static ?int $navigationSort = 20;
 
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     /** @var array<string, mixed> */
     public ?array $data = [];
 

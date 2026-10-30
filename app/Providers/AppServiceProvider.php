@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.site', function ($view) {
             static $menu;
             // Menu mis en cache (vidé quand une catégorie est modifiée)
-            $menu ??= Cache::rememberForever('nav.categories', fn () => Category::active()->where('in_menu', true)->get());
+            $menu ??= Cache::store('file')->rememberForever('nav.categories.v2', fn () => Category::active()->where('in_menu', true)->take((int) config('shop.menu_max', 4))->get());
             $view->with('navCategories', $menu);
         });
     }

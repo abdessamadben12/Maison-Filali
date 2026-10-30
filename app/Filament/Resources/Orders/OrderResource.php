@@ -45,6 +45,28 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /** Société de confirmation connectée ? */
+    public static function isConfirmateur(): bool
+    {
+        return (bool) auth()->user()?->isConfirmateur();
+    }
+
+    /** Le confirmateur ne voit que les commandes à confirmer et celles qu'il a traitées. */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        if (static::isConfirmateur()) {
+            $query->where(fn (Builder $q) => $q->where('status', 'en_attente')->orWhere('handled_by_id', auth()->id()));
+        }
+
+        return $query;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return static::isConfirmateur() ? 'À confirmer' : 'Commandes';
+    }
+
     public static function getNavigationBadge(): ?string
     {
         $n = Order::status('en_attente')->count();
@@ -70,8 +92,9 @@ class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('items.product', 'items.variant'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('items.product', 'items.variant', 'handledBy'))
             ->defaultSort('created_at', 'desc')
+            ->poll('10s') // la liste se met à jour toute seule
             ->searchPlaceholder('N°, nom, téléphone…')
             ->recordUrl(fn (Order $r) => static::getUrl('view', ['record' => $r]))
             ->columns([
@@ -88,10 +111,18 @@ class OrderResource extends Resource
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn ($state) => Order::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => Order::STATUS_COLORS[$state] ?? 'gray'),
+                TextColumn::make('call_attempts')->label('Appels')->alignCenter()
+                    ->formatStateUsing(fn ($state) => $state ? $state.' sans réponse' : '—')
+                    ->color(fn ($state) => $state >= 3 ? 'danger' : ($state ? 'warning' : 'gray'))
+                    ->description(fn (Order $r) => $r->last_call_at?->diffForHumans()),
+                TextColumn::make('handledBy.name')->label('Traitée par')->placeholder('—')->color('gray')
+                    ->visible(fn () => ! static::isConfirmateur())->toggleable(),
                 TextColumn::make('created_at')->label('Date')->dateTime('d/m/Y H:i')->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('city')->label('Ville')->options(fn () => Order::query()->distinct()->orderBy('city')->pluck('city', 'city')->all()),
+                SelectFilter::make('handled_by_id')->label('Traitée par')->relationship('handledBy', 'name')
+                    ->visible(fn () => ! static::isConfirmateur()),
             ])
             ->recordActions([
                 ViewAction::make()->label('Voir'),
@@ -143,6 +174,10 @@ class OrderResource extends Resource
                         ->color('primary'),
                     TextEntry::make('city')->label('Ville'),
                     TextEntry::make('address')->label('Adresse')->placeholder('—'),
+                    TextEntry::make('call_attempts')->label('Appels sans réponse')
+                        ->formatStateUsing(fn ($state, Order $r) => $state ? $state.' (dernier '.$r->last_call_at?->diffForHumans().')' : 'Aucun')
+                        ->color(fn ($state) => $state >= 3 ? 'danger' : ($state ? 'warning' : 'gray')),
+                    TextEntry::make('handledBy.name')->label('Traitée par')->placeholder('—'),
                     TextEntry::make('user_id')->label('Compte client')->formatStateUsing(fn ($state) => $state ? 'Oui' : 'Non')->placeholder('Sans compte'),
                     TextEntry::make('created_at')->label('Reçue le')->dateTime('d/m/Y à H:i'),
                     TextEntry::make('admin_note')->label('Note interne')->placeholder('Aucune note')
@@ -172,12 +207,26 @@ class OrderResource extends Resource
                 ->modalDescription('Le stock sera déduit et le client verra « Confirmée » sur le site.')
                 ->modalSubmitActionLabel('Confirmer')
                 ->action(fn (Order $record) => $run($record, 'confirm', 'Commande confirmée')),
+            Action::make('no_answer')->label('Injoignable / à rappeler')->icon(Heroicon::OutlinedPhoneXMark)->color('warning')
+                ->visible(fn (Order $r) => $r->status === 'en_attente')
+                ->modalHeading(fn (Order $r) => 'Appel sans réponse — '.$r->number)
+                ->modalDescription(fn (Order $r) => 'La commande reste « à confirmer ». Tentative n° '.($r->call_attempts + 1).'.')
+                ->schema([Textarea::make('note')->label('Note (facultatif)')->placeholder('Ex. : messagerie, rappeler après 18 h…')->rows(2)])
+                ->modalSubmitActionLabel('Enregistrer l’appel')
+                ->action(function (Order $record, array $data) {
+                    try {
+                        $record->noAnswer($data['note'] ?? null);
+                        Notification::make()->title('Appel noté ('.$record->call_attempts.' sans réponse)')->warning()->send();
+                    } catch (RuntimeException $e) {
+                        Notification::make()->title('Action impossible')->body($e->getMessage())->danger()->send();
+                    }
+                }),
             Action::make('ship')->label('Marquer expédiée')->icon(Heroicon::OutlinedTruck)->color('info')
-                ->visible(fn (Order $r) => $r->status === 'confirmee')
+                ->visible(fn (Order $r) => $r->status === 'confirmee' && ! static::isConfirmateur())
                 ->requiresConfirmation()->modalSubmitActionLabel('Expédiée')
                 ->action(fn (Order $record) => $run($record, 'ship', 'Commande marquée expédiée')),
             Action::make('deliver')->label('Marquer livrée')->icon(Heroicon::OutlinedCheckBadge)->color('gray')
-                ->visible(fn (Order $r) => $r->status === 'expediee')
+                ->visible(fn (Order $r) => $r->status === 'expediee' && ! static::isConfirmateur())
                 ->requiresConfirmation()->modalSubmitActionLabel('Livrée')
                 ->action(fn (Order $record) => $run($record, 'deliver', 'Commande marquée livrée')),
             Action::make('note')->label('Note interne')->icon(Heroicon::OutlinedPencilSquare)->color('gray')
@@ -188,7 +237,7 @@ class OrderResource extends Resource
                     Notification::make()->title('Note enregistrée')->success()->send();
                 }),
             Action::make('cancel')->label('Annuler la commande')->icon(Heroicon::OutlinedXMark)->color('danger')
-                ->visible(fn (Order $r) => ! in_array($r->status, ['livree', 'annulee'], true))
+                ->visible(fn (Order $r) => static::isConfirmateur() ? $r->status === 'en_attente' : ! in_array($r->status, ['livree', 'annulee'], true))
                 ->requiresConfirmation()->modalHeading(fn (Order $r) => 'Annuler '.$r->number.' ?')
                 ->modalDescription('Si le stock avait été déduit, il sera remis automatiquement.')
                 ->modalSubmitActionLabel('Annuler la commande')->modalCancelActionLabel('Retour')

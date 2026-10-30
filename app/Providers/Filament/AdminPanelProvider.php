@@ -61,6 +61,8 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => Blade::render(
                 '<div class="mf-login-note"><strong>Accès sécurisé</strong><span>Comptes créés uniquement par le gérant · blocage après 5 essais</span></div>'
             ))
+            // Nouvelles commandes en direct (notification + son), sans recharger la page
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => auth()->check() ? Blade::render('@livewire(\App\Livewire\NewOrdersWatcher::class)') : '')
             ->renderHook(PanelsRenderHook::USER_MENU_BEFORE, fn () => Blade::render(
                 '<a href="{{ url(\'/\') }}" target="_blank" class="mf-view-site">Voir le site ↗</a>'
             ))

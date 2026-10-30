@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Maison Filali',
             'password' => env('ADMIN_PASSWORD', 'MaisonFilali2026!'),
             'is_admin' => true,
+            'role' => 'gerant',
         ]);
 
         // Couleurs

@@ -26,6 +26,10 @@ class Dashboard extends BaseDashboard
 
     public function getSubheading(): string|Htmlable|null
     {
+        if (auth()->user()?->isConfirmateur()) {
+            return ucfirst(now()->translatedFormat('l j F')).' · appelez chaque client, puis confirmez, annulez ou notez « injoignable ».';
+        }
+
         return ucfirst(now()->translatedFormat('l j F')).' · voici ce qui demande votre attention aujourd’hui.';
     }
 

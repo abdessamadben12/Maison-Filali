@@ -23,7 +23,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
-use RuntimeException;
 
 class StockResource extends Resource
 {
@@ -40,6 +39,12 @@ class StockResource extends Resource
     protected static ?string $slug = 'stocks';
 
     protected static ?int $navigationSort = 6;
+
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -81,12 +86,7 @@ class StockResource extends Resource
                     ->updateStateUsing(function (ProductVariant $record, $state) {
                         $diff = (int) $state - $record->stock;
                         if ($diff !== 0) {
-                            try {
-                                $record->adjustStock($diff, 'correction', 'Modifié depuis la page Stocks');
-                            } catch (RuntimeException $e) {
-                                Notification::make()->title($e->getMessage())->danger()->send();
-                                $record->refresh();
-                            }
+                            $record->adjustStock($diff, 'correction', 'Modifié depuis la page Stocks');
                         }
 
                         return $record->stock;

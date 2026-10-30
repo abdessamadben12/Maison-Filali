@@ -11,6 +11,11 @@ use Filament\Widgets\TableWidget;
 
 class StockAlerts extends TableWidget
 {
+    public static function canView(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 1;

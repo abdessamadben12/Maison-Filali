@@ -34,6 +34,12 @@ class CustomerResource extends Resource
 
     protected static ?int $navigationSort = 7;
 
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     public static function canCreate(): bool
     {
         return false;

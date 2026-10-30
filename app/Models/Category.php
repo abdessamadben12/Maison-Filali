@@ -32,10 +32,18 @@ class Category extends Model
         static::deleted(fn () => static::flushCache());
     }
 
+    /** Le menu du haut a-t-il encore de la place ? */
+    public static function menuIsFull(?Category $except = null): bool
+    {
+        return static::where('in_menu', true)->when($except?->exists, fn ($q) => $q->whereKeyNot($except->getKey()))->count()
+            >= (int) config('shop.menu_max', 4);
+    }
+
     public static function flushCache(): void
     {
-        Cache::forget('nav.categories');
-        Cache::forget('sitemap.xml');
+        Cache::store('file')->forget('nav.categories');
+        Cache::store('file')->forget('nav.categories.v2');
+        Cache::store('file')->forget('sitemap.xml');
     }
 
     public function getRouteKeyName(): string

@@ -35,6 +35,12 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /** Réservé au gérant (la société de confirmation n'y a pas accès). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isGerant();
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([
@@ -44,7 +50,13 @@ class CategoryResource extends Resource
             TextInput::make('description')->label('Description courte')->columnSpanFull()->maxLength(190),
             FileUpload::make('image')->label('Photo')->image()->disk('uploads')->directory('categories')->visibility('public')
                 ->imageEditor()->maxSize(10240)->columnSpanFull(),
-            Toggle::make('in_menu')->label('Afficher dans le menu du site'),
+            Toggle::make('in_menu')->label('Afficher dans le menu du site')
+                ->helperText('Maximum '.config('shop.menu_max').' catégories dans le menu (les autres restent accessibles dans « Boutique »).')
+                ->rule(fn (?Category $record) => function (string $attribute, $value, \Closure $fail) use ($record) {
+                    if ($value && ! $record?->in_menu && Category::menuIsFull($record)) {
+                        $fail('Le menu contient déjà '.config('shop.menu_max').' catégories : retirez-en une d’abord.');
+                    }
+                }),
             Toggle::make('is_active')->label('En ligne')->default(true),
         ]);
     }
@@ -63,7 +75,9 @@ class CategoryResource extends Resource
                 TextColumn::make('products_count')->label('Produits')->badge()
                     ->formatStateUsing(fn ($state) => $state ? $state.' produit'.($state > 1 ? 's' : '') : 'Aucun produit')
                     ->color(fn ($state) => $state ? 'success' : 'gray'),
-                ToggleColumn::make('in_menu')->label('Menu'),
+                ToggleColumn::make('in_menu')->label('Menu')
+                    ->tooltip('Maximum '.config('shop.menu_max').' catégories dans le menu')
+                    ->disabled(fn (Category $r) => ! $r->in_menu && Category::menuIsFull($r)),
                 ToggleColumn::make('is_active')->label('En ligne'),
             ])
             ->recordActions([

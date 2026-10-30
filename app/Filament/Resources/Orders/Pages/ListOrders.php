@@ -14,6 +14,21 @@ class ListOrders extends ListRecords
 
     public function getTabs(): array
     {
+        // Société de confirmation : ses deux listes de travail
+        if (OrderResource::isConfirmateur()) {
+            $mine = fn (Builder $q) => $q->where('handled_by_id', auth()->id());
+
+            return [
+                'en_attente' => Tab::make('À confirmer')->badgeColor('warning')
+                    ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'en_attente')->orderBy('call_attempts')->orderBy('created_at'))
+                    ->badge(fn () => Order::status('en_attente')->count() ?: null),
+                'confirmees' => Tab::make('Confirmées par moi')->badgeColor('success')
+                    ->modifyQueryUsing(fn (Builder $query) => $mine($query)->where('status', '!=', 'annulee')),
+                'annulees' => Tab::make('Annulées par moi')->badgeColor('danger')
+                    ->modifyQueryUsing(fn (Builder $query) => $mine($query)->where('status', 'annulee')),
+            ];
+        }
+
         $counts = Order::query()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
         $tab = fn (string $label, string $status) => Tab::make($label)
             ->modifyQueryUsing(fn (Builder $query) => $query->where('status', $status))
@@ -32,6 +47,10 @@ class ListOrders extends ListRecords
 
     public function getDefaultActiveTab(): string|int|null
     {
+        if (OrderResource::isConfirmateur()) {
+            return 'en_attente';
+        }
+
         return Order::status('en_attente')->exists() ? 'en_attente' : 'toutes';
     }
 }

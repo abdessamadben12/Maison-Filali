@@ -652,3 +652,32 @@ input,select,textarea{font:inherit;color:inherit}
   .footer .bottom{padding:28px 20px 0}
   .footer .logo strong{font-size:26px;line-height:28px}
 }
+
+/* =========================================================
+   En-tête : grille à 3 colonnes (menu | logo | actions).
+   Le menu ne peut plus passer sous le logo ; s'il ne tient pas
+   (beaucoup de catégories), il passe automatiquement en menu ☰.
+   ========================================================= */
+.header .inner{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;column-gap:28px}
+.burger{grid-column:1;grid-row:1;justify-self:start}
+.nav{grid-column:1;grid-row:1;min-width:0;overflow:hidden;flex-wrap:nowrap}
+.nav a{white-space:nowrap;flex-shrink:0}
+.brand{grid-column:2;grid-row:1;position:static;transform:none;align-self:center}
+.header-actions{grid-column:3;grid-row:1;justify-self:end;min-width:0}
+@media (max-width:1500px){
+  .nav{gap:18px}
+  .nav a{letter-spacing:1px}
+  .header-actions{gap:18px}
+}
+/* Menu compact (ajouté par site.js quand les liens ne tiennent pas) */
+.header.compact .burger{display:flex}
+.header.compact .nav{grid-column:auto;grid-row:auto;display:none;position:absolute;top:100%;left:0;right:0;background:#fff;flex-direction:column;gap:0;border-bottom:1px solid var(--line);box-shadow:0 18px 30px rgba(31,42,39,.08);overflow:visible}
+.header.compact .nav.open{display:flex}
+.header.compact .nav a{padding:16px 64px;border-bottom:1px solid var(--soft)}
+.header.compact .nav a.active,.header.compact .nav a:hover{border-bottom-color:var(--soft);background:var(--cream)}
+@media (max-width:900px){
+  .header .inner{column-gap:10px}
+  .nav{overflow:visible;grid-column:auto;grid-row:auto;top:100%}
+  .nav a{padding:16px 24px}
+  .header.compact .nav a{padding:16px 24px}
+}

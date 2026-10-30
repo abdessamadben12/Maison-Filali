@@ -25,6 +25,19 @@
         lazyMaps.forEach(loadMap);
     }
 
+    // En-tête : si les liens du menu ne tiennent pas à gauche du logo, passer en menu ☰
+    var header = document.querySelector('.header');
+    var nav = document.getElementById('nav');
+    function fitNav() {
+        if (!header || !nav || window.innerWidth <= 900) { header && header.classList.remove('compact'); return; }
+        header.classList.remove('compact');
+        nav.classList.remove('open');
+        if (nav.scrollWidth > nav.clientWidth + 1) header.classList.add('compact');
+    }
+    fitNav();
+    window.addEventListener('resize', fitNav);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+
     // Afficher / masquer un mot de passe
     document.querySelectorAll('[data-reveal]').forEach(function (btn) {
         btn.addEventListener('click', function () {
