@@ -5,16 +5,27 @@ namespace App\Support;
 use Throwable;
 
 /**
- * Optimisation des photos envoyées depuis l'admin (dossier public/uploads) :
- * une copie WebP redimensionnée (max 1400 px) est créée à côté de l'original
- * et servie sur le site. Si le serveur ne sait pas créer de WebP, l'original est utilisé.
+ * Conversion automatique en WebP des photos envoyées depuis l'admin (public/uploads),
+ * en qualité maximale :
+ *  - PNG / GIF  → WebP sans perte (pixels identiques, transparence conservée) ;
+ *  - JPEG       → WebP qualité 92 (aucune différence visible) ;
+ *  - seules les photos géantes (> 2400 px) sont réduites, ce qui reste plus net que tout écran.
+ * L'original est toujours conservé (Google, partage). Si la WebP n'est pas plus légère,
+ * le site garde simplement l'original : la qualité n'est jamais dégradée.
  */
 class Img
 {
-    public const MAX = 1400;
+    /** Plus grand côté de la grande photo (page produit, zoom). */
+    public const MAX = 2400;
 
-    /** Miniature pour les cartes produits / catégories (2× la largeur affichée). */
-    public const THUMB = 600;
+    /** Miniature pour les cartes produits / catégories (≈ 2,5× la largeur affichée). */
+    public const THUMB = 800;
+
+    /** Qualité WebP des photos JPEG (92 = aucune perte visible). */
+    public const QUALITY = 92;
+
+    /** Qualité des miniatures. */
+    public const THUMB_QUALITY = 88;
 
     /** @param 'lg'|'sm' $size */
     public static function url(?string $path, string $size = 'lg'): ?string
@@ -33,7 +44,8 @@ class Img
 
     public static function webpPath(string $path, string $size = 'lg'): string
     {
-        return preg_replace('/\.[A-Za-z0-9]+$/', '', $path).($size === 'sm' ? '-sm' : '').'.webp';
+        // Suffixe « -hd » / « -thumb » : versions haute qualité (les anciennes .webp ne sont plus utilisées)
+        return preg_replace('/\.[A-Za-z0-9]+$/', '', $path).($size === 'sm' ? '-thumb' : '-hd').'.webp';
     }
 
     /** Redimensionne (sans agrandir) : par la largeur, ou par le plus grand côté si $longSide. */
@@ -96,22 +108,28 @@ class Img
             $w = imagesx($img);
             $h = imagesy($img);
 
-            // Miniature (cartes) : largeur max 600 px
+            $lossless = in_array($info[2] ?? null, [IMAGETYPE_PNG, IMAGETYPE_GIF], true) && defined('IMG_WEBP_LOSSLESS');
+
+            // Miniature (cartes) : largeur max 800 px, qualité 88
             $thumb = self::resize($img, self::THUMB);
-            imagewebp($thumb, public_path('uploads/'.self::webpPath($path, 'sm')), 78);
+            imagewebp($thumb, public_path('uploads/'.self::webpPath($path, 'sm')), self::THUMB_QUALITY);
             if ($thumb !== $img) {
                 imagedestroy($thumb);
             }
 
-            // Grande photo (page produit) : max 1400 px
+            // Grande photo : PNG/GIF sans perte, JPEG qualité 92
             $large = self::resize($img, self::MAX, true);
-            $ok = imagewebp($large, $dst, 80);
+            $ok = imagewebp($large, $dst, $lossless ? IMG_WEBP_LOSSLESS : self::QUALITY);
+            // Photo enregistrée en PNG très lourde en « sans perte » : qualité 95 (invisible à l'œil)
+            if ($ok && $lossless && filesize($dst) > 1.5 * 1024 * 1024) {
+                $ok = imagewebp($large, $dst, 95);
+            }
             if ($large !== $img) {
                 imagedestroy($large);
             }
             imagedestroy($img);
 
-            // Garder la WebP seulement si elle est plus légère
+            // Garder la WebP seulement si elle est plus légère (sinon l'original est servi)
             if ($ok && filesize($dst) >= filesize($src) && max($w, $h) <= self::MAX) {
                 @unlink($dst);
 

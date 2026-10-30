@@ -570,3 +570,85 @@ input,select,textarea{font:inherit;color:inherit}
 .map-embed iframe{position:absolute;left:14px;top:10px;width:calc(100% - 28px);height:calc(100% - 20px);border:0;background:#efeae0}
 .map-embed iframe[data-src]{visibility:hidden}
 .map-embed>img{height:calc(100% - 20px)}
+
+/* Crédit agence */
+.footer .credit a{color:var(--green);font-weight:500}
+.footer .credit a:hover{text-decoration:underline}
+
+/* =========================================================
+   Espacements resserrés entre les sections (ordinateur + mobile)
+   ========================================================= */
+.reassure .wrap{padding-top:26px;padding-bottom:26px}
+.univers,.shop,.feature,.visit{padding:64px 0}
+.univ{margin-top:32px}
+.shop .top{margin-bottom:36px}
+.related{padding:64px 0}
+.related .grid{margin-top:32px}
+.catalog{padding-bottom:72px}
+.product{padding-bottom:72px}
+.contact-page{padding:56px 0 72px}
+.page{padding:48px 0 72px}
+.account .wrap{padding-bottom:72px}
+.thanks{padding:64px 0 80px}
+.footer .cols{padding-top:56px}
+.footer .bottom{padding-top:40px}
+.search-bar .btn{flex-shrink:0}
+.search-bar input{min-width:0}
+
+@media (max-width:1280px){
+  .feature .wrap,.visit .wrap{gap:44px}
+  .footer .cols{padding-top:48px}
+}
+
+@media (max-width:900px){
+  /* Sections */
+  .univers,.shop,.feature,.visit{padding:44px 0}
+  .sec-head{gap:10px}
+  .h-section{font-size:32px}
+  .univ{margin-top:22px;gap:20px}
+  .shop .top{margin-bottom:18px;gap:14px}
+  .shop-bar{margin-bottom:18px}
+  .feature .wrap,.visit .wrap{gap:28px}
+  .feature .pics{height:410px}
+  .feature .txt{gap:18px}
+  .feature h2{font-size:38px;line-height:40px}
+  .feature .cta{flex-direction:column;align-items:stretch;gap:10px}
+  .visit .info{gap:16px}
+  .map{height:300px}
+  .map>img{height:280px}
+
+  /* Accueil : bandeau d'entrée plus compact */
+  .hero{min-height:0}
+  .hero .content{padding:40px 20px 48px;gap:18px}
+  .hero h1{font-size:46px;line-height:48px}
+  .hero p{font-size:17px;line-height:28px}
+
+  /* 4 avantages : grille 2 × 2, icône au-dessus, texte centré */
+  .reassure .wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px 14px;padding:24px 20px}
+  .reassure .item{width:auto;flex-direction:column;align-items:center;text-align:center;gap:8px}
+  .reassure .ico{width:34px;height:34px}
+  .reassure strong{font-size:19px;line-height:1.15}
+  .reassure small{display:block;font-size:13px;line-height:1.35;margin-top:3px}
+
+  /* Boutons : le texte passe à la ligne au lieu d'être coupé */
+  .btn{white-space:normal;text-align:center;height:auto;min-height:50px;padding:12px 20px;line-height:1.25;letter-spacing:1.4px}
+  .btn-sm{min-height:44px;padding:10px 16px}
+  .search-bar form{gap:8px}
+  .search-bar .btn{white-space:nowrap;padding:0 14px;min-height:46px;letter-spacing:1px;font-size:13px}
+
+  /* Autres pages */
+  .chips .wrap{padding-top:16px;padding-bottom:16px}
+  .catalog{padding-top:20px;padding-bottom:44px;gap:24px}
+  .product{padding-bottom:44px;gap:24px}
+  .related{padding:44px 0}
+  .related .grid{margin-top:20px}
+  .contact-page{padding:32px 0 44px}
+  .page{padding:24px 0 44px}
+  .account .wrap{padding-top:24px;padding-bottom:44px;gap:24px}
+  .thanks{padding:40px 0 52px}
+
+  /* Pied de page */
+  .footer .cols{padding:40px 20px 0;gap:28px}
+  .footer .bottom{padding:28px 20px 0}
+  .footer .logo strong{font-size:26px;line-height:28px}
+}

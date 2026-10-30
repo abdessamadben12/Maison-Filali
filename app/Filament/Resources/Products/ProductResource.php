@@ -74,8 +74,8 @@ class ProductResource extends Resource
                     Section::make('Photos')->schema([
                         FileUpload::make('images')->hiddenLabel()->image()->multiple()->reorderable()->appendFiles()
                             ->disk('uploads')->directory('products')->visibility('public')
-                            ->maxFiles(8)->maxSize(10240)->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->imageEditor()->panelLayout('grid')
-                            ->helperText('La première photo est la photo principale. Glissez pour changer l’ordre.'),
+                            ->maxFiles(8)->maxSize(10240)->imageEditor()->panelLayout('grid')
+                            ->helperText('La première photo est la photo principale. Glissez pour changer l’ordre. JPG, PNG ou WebP : les photos sont converties automatiquement en WebP, sans perte de qualité.'),
                     ]),
                     Section::make('Couleurs, tailles & stock')
                         ->description('Une ligne par combinaison couleur / taille. Laissez la couleur ou la taille vide si le produit n’en a pas.')

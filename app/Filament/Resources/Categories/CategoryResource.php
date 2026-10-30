@@ -43,7 +43,7 @@ class CategoryResource extends Resource
                 ->helperText('Laissez vide : rempli automatiquement.'),
             TextInput::make('description')->label('Description courte')->columnSpanFull()->maxLength(190),
             FileUpload::make('image')->label('Photo')->image()->disk('uploads')->directory('categories')->visibility('public')
-                ->imageEditor()->maxSize(10240)->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->columnSpanFull(),
+                ->imageEditor()->maxSize(10240)->columnSpanFull(),
             Toggle::make('in_menu')->label('Afficher dans le menu du site'),
             Toggle::make('is_active')->label('En ligne')->default(true),
         ]);

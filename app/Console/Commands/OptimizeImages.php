@@ -9,7 +9,7 @@ class OptimizeImages extends Command
 {
     protected $signature = 'images:optimize {--force : Recréer toutes les versions WebP}';
 
-    protected $description = 'Crée les versions WebP légères des photos produits et catégories (public/uploads)';
+    protected $description = 'Convertit les photos produits et catégories en WebP haute qualité (public/uploads)';
 
     public function handle(): int
     {

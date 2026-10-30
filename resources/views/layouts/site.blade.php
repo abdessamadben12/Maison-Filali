@@ -146,6 +146,7 @@
         <div>
             <span>© {{ date('Y') }} Maison Filali — Tous droits réservés</span>
             <span><a href="{{ route('page', 'mentions-legales') }}">Mentions légales</a> · <a href="{{ route('page', 'confidentialite') }}">Confidentialité</a> · <a href="{{ route('page', 'cgv') }}">Conditions générales</a></span>
+            <span class="credit">Créé par <a href="https://fastdevweb.com" target="_blank" rel="noopener">FastDevWeb</a></span>
         </div>
     </div>
 </footer>
