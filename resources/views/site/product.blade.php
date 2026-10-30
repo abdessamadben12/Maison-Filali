@@ -1,7 +1,22 @@
 @extends('layouts.site')
 
-@section('title', $product->name.' — Maison Filali')
-@section('description', $product->tagline)
+@section('title', $product->name.' | '.$product->category->name.' — Maison Filali')
+@section('description', \App\Support\Seo::description($product->tagline.' '.money($product->price).' — livraison partout au Maroc, paiement à la livraison.'))
+@section('og_type', 'product')
+@section('og_image', $product->original_image_urls[0])
+@push('meta')
+    <meta property="product:price:amount" content="{{ $product->price }}">
+    <meta property="product:price:currency" content="MAD">
+    <meta property="product:availability" content="{{ $product->inStock() ? 'in stock' : 'out of stock' }}">
+@endpush
+@push('head')
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::product($product)) }}
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::breadcrumb([
+        ['Accueil', route('home')],
+        [$product->category->name, route('category', $product->category)],
+        [$product->name, route('product', $product)],
+    ])) }}
+@endpush
 
 @php($gallery = $product->gallery_urls)
 @php($colors = $product->availableColors(true))
@@ -20,10 +35,10 @@
     <div class="gallery">
         <div class="thumbs">
             @foreach ($gallery as $i => $url)
-                <button type="button" @class(['on' => $i === 0]) data-src="{{ $url }}"><img src="{{ $url }}" alt=""></button>
+                <button type="button" @class(['on' => $i === 0]) data-src="{{ $url }}" aria-label="Photo {{ $i + 1 }}"><img src="{{ $product->thumb_urls[$i] ?? $url }}" alt="" width="96" height="128" @if ($i > 0) loading="lazy" @endif decoding="async"></button>
             @endforeach
         </div>
-        <div class="main-pic"><img id="mainPic" src="{{ $gallery[0] }}" alt="{{ $product->name }}" style="view-transition-name:p{{ $product->id }}"></div>
+        <div class="main-pic"><img id="mainPic" src="{{ $gallery[0] }}" alt="{{ $product->name }} — {{ $product->category->name }} Maison Filali" fetchpriority="high" width="560" height="740" style="view-transition-name:p{{ $product->id }}"></div>
     </div>
 
     <div class="pinfo">

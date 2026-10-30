@@ -4,10 +4,15 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ShopController::class, 'home'])->name('home');
+
+// SEO : plan du site et consignes pour les robots
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots']);
 Route::get('/boutique', [ShopController::class, 'catalogue'])->name('catalogue');
 Route::redirect('/catalogue', '/boutique', 301);
 Route::redirect('/maison/notre-maison', '/maison/notre-histoire', 301);

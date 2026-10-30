@@ -4,15 +4,44 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Maison Filali — Caftans & babouches faits main à Casablanca')</title>
-    <meta name="description" content="@yield('description', 'Maison Filali : vêtements traditionnels marocains faits main — caftans, takchitas, djellabas et babouches. Commandez en ligne, payez à la livraison partout au Maroc.')">
-    <link rel="icon" href="{{ asset('images/logo.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+    @php
+        // Les @section(…) sont déjà échappées : on décode avant de réafficher (évite « &amp;#039; »)
+        $seo = fn (string $name, string $default) => html_entity_decode(trim($__env->yieldContent($name)), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?: $default;
+        $seoTitle = $seo('title', 'Maison Filali — Caftans, takchitas & babouches faits main au Maroc');
+        $seoDesc = $seo('description', 'Maison Filali : vêtements traditionnels marocains faits main — caftans, takchitas, djellabas et babouches. Commandez en ligne, payez à la livraison partout au Maroc.');
+        $seoCanonical = $seo('canonical', url()->current());
+        $seoImage = $seo('og_image', asset('images/og-image.jpg'));
+    @endphp
+    <title>{{ $seoTitle }}</title>
+    <meta name="description" content="{{ $seoDesc }}">
+    <meta name="robots" content="@yield('robots', 'index, follow, max-image-preview:large')">
+    <link rel="canonical" href="{{ $seoCanonical }}">
+
+    {{-- Partage sur les réseaux sociaux (WhatsApp, Facebook, Instagram…) --}}
+    <meta property="og:site_name" content="Maison Filali">
+    <meta property="og:locale" content="fr_MA">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDesc }}">
+    <meta property="og:url" content="{{ $seoCanonical }}">
+    <meta property="og:image" content="{{ $seoImage }}">
+    <meta name="twitter:card" content="summary_large_image">
+    @stack('meta')
+
+    <meta name="theme-color" content="#0f4a3e">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
+    <link rel="icon" href="{{ asset('images/favicon-48.png') }}" type="image/png" sizes="48x48">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
+    <link rel="sitemap" type="application/xml" href="{{ url('sitemap.xml') }}">
+
+    {{-- Polices principales préchargées (hébergées sur le site) --}}
+    <link rel="preload" href="{{ asset('fonts/jost-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/cormorant-garamond-latin-500-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    @stack('preload')
     <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('anim');</script>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}?v={{ config('shop.assets_version') }}">
     <link rel="stylesheet" href="{{ asset('css/anim.css') }}?v={{ config('shop.assets_version') }}">
+    @stack('head')
 </head>
 <body>
 <div class="topbar">
@@ -36,13 +65,13 @@
             <a class="nav-m" href="{{ route('contact') }}" @class(['active' => request()->routeIs('contact')])>Contact</a>
         </nav>
         <a class="brand" href="{{ route('home') }}">
-            <img src="{{ asset('images/logo.png') }}" alt="La maison Filali">
+            <img src="{{ asset('images/logo-160.webp') }}" alt="Maison Filali — accueil" width="52" height="52">
             <span>MAISON FILALI</span>
         </a>
         <div class="header-actions">
             <a class="account-link contact-link" href="{{ route('contact') }}"><span>Contact</span></a>
             <button type="button" data-toggle="#search" aria-label="Rechercher"><x-ico name="i-search" :s="21"/></button>
-            <a class="account-link" href="{{ auth()->check() && ! auth()->user()->is_admin ? route('account.orders') : route('login') }}">
+            <a class="account-link" href="{{ auth()->check() && ! auth()->user()->is_admin ? route('account.orders') : route('login') }}" aria-label="Mon compte">
                 <x-ico name="i-user" :s="21"/><span>Mon compte</span>
             </a>
             <a class="phone-pill" href="https://wa.me/{{ config('shop.whatsapp') }}" target="_blank" rel="noopener">
@@ -73,7 +102,7 @@
     <div class="cols">
         <div class="about">
             <div class="logo">
-                <img src="{{ asset('images/logo.png') }}" alt="">
+                <img src="{{ asset('images/logo-160.webp') }}" alt="" width="64" height="64" loading="lazy">
                 <div><strong>MAISON FILALI</strong><small>Vêtements traditionnels</small></div>
             </div>
             <p>Caftans, takchitas, djellabas et babouches faits main, livrés partout au Maroc. Commandez en ligne, payez à la livraison.</p>
@@ -123,7 +152,7 @@
 
 @stack('modals')
 @stack('scripts')
-<script src="{{ asset('js/site.js') }}?v={{ config('shop.assets_version') }}"></script>
-<script src="{{ asset('js/anim.js') }}?v={{ config('shop.assets_version') }}"></script>
+<script src="{{ asset('js/site.js') }}?v={{ config('shop.assets_version') }}" defer></script>
+<script src="{{ asset('js/anim.js') }}?v={{ config('shop.assets_version') }}" defer></script>
 </body>
 </html>

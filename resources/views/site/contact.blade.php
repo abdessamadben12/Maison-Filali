@@ -3,9 +3,13 @@
 @section('title', 'Contact — Maison Filali')
 @section('description', 'Contactez Maison Filali : atelier & showroom à Casablanca, téléphone, WhatsApp et formulaire de contact.')
 
+@push('head')
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::store()) }}
+@endpush
+
 @section('content')
 <section class="cat-hero contact-hero">
-    <img src="{{ asset('images/catalogue-banner.png') }}" alt="">
+    <img src="{{ asset('images/catalogue-banner.png') }}" alt="" width="1440" height="300">
     <div class="txt">
         <div class="crumbs"><a href="{{ route('home') }}">Accueil</a><x-ico name="i-crumb" :s="14"/><strong>Contact</strong></div>
         <h1>Nous <em class="italic-green">contacter</em></h1>

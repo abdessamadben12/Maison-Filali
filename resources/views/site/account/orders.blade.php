@@ -23,7 +23,7 @@
                 <div class="tr">
                     <div><strong>{{ $order->number }}</strong><small>{{ $order->created_at->translatedFormat('d M Y') }}</small></div>
                     <div class="art">
-                        <img src="{{ $line?->product?->image_url ?? asset('images/logo.png') }}" alt="">
+                        <img src="{{ $line?->product?->thumb_urls[0] ?? asset('images/logo-160.webp') }}" alt="">
                         <div><b>{{ $line?->product_name }}</b><small>{{ $line?->variant_label }} · ×{{ $line?->quantity }}</small></div>
                     </div>
                     <div class="tot">{{ money($order->total) }}</div>

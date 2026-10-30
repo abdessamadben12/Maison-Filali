@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Maison Filali')
             ->brandLogo(fn () => view('filament.brand'))
             ->brandLogoHeight('44px')
-            ->favicon(asset('images/logo.png'))
+            ->favicon(asset('images/favicon-48.png'))
             ->font('Jost')
             ->colors([
                 // Vert émeraude Maison Filali (#0f4a3e = nuance 600 utilisée par les boutons)
@@ -56,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([])
             ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.admin-style'))
             ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_START, fn () => Blade::render(
-                '<aside class="mf-login-aside"><img class="pattern" src="{{ asset(\'images/zellige-tile.png\') }}" alt=""><div class="frame"><img src="{{ asset(\'images/login-photo.png\') }}" alt=""></div><blockquote>« L’atelier, côté coulisses. »</blockquote></aside>'
+                '<aside class="mf-login-aside"><img class="pattern" src="{{ asset(\'images/zellige-tile.png\') }}" alt=""><div class="frame"><img src="{{ asset(\'images/login-photo.webp\') }}" alt=""></div><blockquote>« L’atelier, côté coulisses. »</blockquote></aside>'
             ))
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => Blade::render(
                 '<div class="mf-login-note"><strong>Accès sécurisé</strong><span>Comptes créés uniquement par le gérant · blocage après 5 essais</span></div>'

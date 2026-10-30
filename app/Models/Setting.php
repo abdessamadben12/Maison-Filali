@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 /**
@@ -29,7 +30,8 @@ class Setting extends Model
     public static function applyToConfig(): void
     {
         try {
-            $values = static::query()->whereIn('key', self::KEYS)->pluck('value', 'key');
+            // Mis en cache : aucune requête SQL par page (vidé à chaque enregistrement)
+            $values = Cache::rememberForever('shop.settings', fn () => static::query()->whereIn('key', self::KEYS)->pluck('value', 'key')->all());
         } catch (Throwable) {
             return; // table pas encore créée (php artisan migrate)
         }
@@ -44,6 +46,7 @@ class Setting extends Model
         foreach ($values as $key => $value) {
             static::updateOrCreate(['key' => $key], ['value' => $value]);
         }
+        Cache::forget('shop.settings');
     }
 
     /** Extrait l'adresse de la carte depuis le code <iframe> copié dans Google Maps (ou l'adresse seule). */

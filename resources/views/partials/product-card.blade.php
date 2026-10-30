@@ -1,9 +1,9 @@
 @php($colors = $product->availableColors())
 <article class="pcard">
     <a class="media" href="{{ route('product', $product) }}">
-        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy" style="view-transition-name:p{{ $product->id }}">
-        @if (count($product->gallery_urls) > 1)
-            <img class="alt" src="{{ $product->gallery_urls[1] }}" alt="" loading="lazy">
+        <img src="{{ $product->thumb_urls[0] }}" alt="{{ $product->name }}" loading="lazy" decoding="async" width="294" height="372" style="view-transition-name:p{{ $product->id }}">
+        @if (count($product->thumb_urls) > 1)
+            <img class="alt" src="{{ $product->thumb_urls[1] }}" alt="" loading="lazy" decoding="async" width="294" height="372">
         @endif
         @if (! $product->inStock())
             <span class="tag out">Épuisé</span>

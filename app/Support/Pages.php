@@ -10,6 +10,12 @@ use App\Models\Size;
  */
 class Pages
 {
+    /** @return array<int, string> */
+    public static function slugs(): array
+    {
+        return ['notre-histoire', 'comment-commander', 'guide-des-tailles', 'livraison-retours', 'mentions-legales', 'confidentialite', 'cgv'];
+    }
+
     public static function find(string $slug): ?array
     {
         $phone = e(config('shop.phone'));

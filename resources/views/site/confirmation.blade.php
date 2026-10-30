@@ -1,11 +1,12 @@
 @extends('layouts.site')
 
 @section('title', 'Commande '.$order->number.' — Maison Filali')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 @php($item = $order->items->first())
 <section class="thanks">
-    <x-site-image src="{{ asset('images/zellige.png') }}" alt="" />
+    <img src="{{ asset('images/zellige.png') }}" alt="">
     <div class="in">
         <div class="badge-arch"><x-ico name="i-check-big" :s="44"/></div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
@@ -25,7 +26,7 @@
         <div class="box">
             @foreach ($order->items as $line)
                 <div class="oline">
-                    <x-site-image src="{{ $line->product?->image_url ?? asset('images/logo.png') }}" alt="" />
+                    <img src="{{ $line->product?->thumb_urls[0] ?? asset('images/logo-160.webp') }}" alt="">
                     <div class="t"><strong>{{ $line->product_name }}</strong><small>{{ $line->variant_label }} · Qté {{ $line->quantity }}</small></div>
                     <b>{{ money($line->total) }}</b>
                 </div>

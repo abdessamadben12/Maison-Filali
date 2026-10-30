@@ -1,6 +1,14 @@
+/* Polices hébergées sur le site (plus rapide que Google Fonts) — licence OFL, voir public/fonts */
+@font-face{font-family:'Jost';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/jost-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/jost-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/jost-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/cormorant-garamond-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/cormorant-garamond-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:500;font-display:swap;src:url(../fonts/cormorant-garamond-latin-500-italic.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
 /* Maison Filali — feuille de style du site (d'après la maquette Figma) */
 :root{
-  --ink:#1f2a27; --muted:#6e6a60; --text2:#4e4a42; --green:#0f4a3e; --green-dark:#0b2f2b;
+  --ink:#1f2a27; --muted:#5f5b52; --text2:#4e4a42; --green:#0f4a3e; --green-dark:#0b2f2b;
   --gold:#c6a15b; --sable:#f3eadb; --cream:#fbf7f0; --beige:#eadcc6; --line:#e5d9c5; --soft:#f2ede4;
   --white:#fff; --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',system-ui,sans-serif;
 }
@@ -136,7 +144,7 @@ input,select,textarea{font:inherit;color:inherit}
 .shop .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 24px}
 
 /* Défilement horizontal (catégories + créations) */
-.hscroll{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.hscroll{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px;-webkit-overflow-scrolling:touch}
 .hscroll::-webkit-scrollbar{display:none}
 .hscroll>*{flex:0 0 auto;scroll-snap-align:start}
 .hscroll .slide{width:294px}
@@ -559,4 +567,6 @@ input,select,textarea{font:inherit;color:inherit}
 }
 
 /* Carte Google Maps intégrée (Admin → Paramètres) */
-.map-embed iframe{position:absolute;left:14px;top:10px;width:calc(100% - 28px);height:calc(100% - 20px);border:0}
+.map-embed iframe{position:absolute;left:14px;top:10px;width:calc(100% - 28px);height:calc(100% - 20px);border:0;background:#efeae0}
+.map-embed iframe[data-src]{visibility:hidden}
+.map-embed>img{height:calc(100% - 20px)}

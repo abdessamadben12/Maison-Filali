@@ -1,12 +1,31 @@
 @extends('layouts.site')
 
-@section('title', ($category?->name ?? 'Boutique').' — Maison Filali')
+@php
+    $isFiltered = request()->hasAny(['q', 'categories', 'couleurs', 'tailles', 'prix_min', 'prix_max', 'stock', 'sur_mesure', 'tri']);
+    $pageNo = $products->currentPage();
+@endphp
+@section('title', ($category ? $category->name.' faits main' : 'Boutique — caftans, takchitas, djellabas & babouches').($pageNo > 1 ? ' (page '.$pageNo.')' : '').' | Maison Filali')
+@section('description', \App\Support\Seo::description($category
+    ? ($category->description ?: $category->name.' faits main par Maison Filali.').' Livraison partout au Maroc, paiement à la livraison.'
+    : 'Toute la boutique Maison Filali : caftans, takchitas, djellabas et babouches faits main. Livraison partout au Maroc, paiement à la livraison.'))
+{{-- Pages filtrées / recherche : non indexées (évite le contenu dupliqué), liens suivis --}}
+@section('canonical', $isFiltered ? url()->current() : url()->current().($pageNo > 1 ? '?page='.$pageNo : ''))
+@if ($isFiltered)
+    @section('robots', 'noindex, follow')
+@endif
+@push('head')
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::breadcrumb(array_filter([
+        ['Accueil', route('home')],
+        ['Boutique', route('catalogue')],
+        $category ? [$category->name, route('category', $category)] : null,
+    ]))) }}
+@endpush
 
 @section('content')
 <section class="cat-hero">
-    <img src="{{ asset('images/catalogue-banner.png') }}" alt="">
-    <div class="a2"><img src="{{ asset('images/cat-takchitas.jpg') }}" alt=""></div>
-    <div class="a1"><img src="{{ asset('images/hero.jpg') }}" alt=""></div>
+    <img src="{{ asset('images/catalogue-banner.png') }}" alt="" width="1440" height="300">
+    <div class="a2"><img src="{{ asset('images/cat-takchitas.webp') }}" alt="" width="550" height="760"></div>
+    <div class="a1"><img src="{{ asset('images/hero-800.webp') }}" alt="" width="800" height="457"></div>
     <div class="txt">
         <div class="crumbs">
             <a href="{{ route('home') }}">Accueil</a><x-ico name="i-crumb" :s="14"/>
@@ -33,7 +52,7 @@
         </a>
         @foreach ($categories as $cat)
             <a @class(['chip', 'on' => $category?->is($cat)]) href="{{ route('category', $cat) }}">
-                <img src="{{ $cat->image_url }}" alt="">{{ $cat->name }} <small>{{ $cat->products_count }}</small>
+                <img src="{{ $cat->thumb_url }}" alt="" width="34" height="34">{{ $cat->name }} <small>{{ $cat->products_count }}</small>
             </a>
         @endforeach
     </div>

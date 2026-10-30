@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Support\Img;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -39,6 +41,15 @@ class Product extends Model
                 $p->slug = $slug;
             }
         });
+        // Le plan du site (sitemap.xml) est régénéré après chaque modification de produit
+        static::saved(function (Product $p) {
+            Cache::forget('sitemap.xml');
+            // Créer les versions WebP légères des photos
+            foreach ($p->images ?? [] as $path) {
+                Img::optimize($path);
+            }
+        });
+        static::deleted(fn () => Cache::forget('sitemap.xml'));
     }
 
     public function getRouteKeyName(): string
@@ -71,10 +82,26 @@ class Product extends Model
         return $this->gallery_urls[0];
     }
 
+    /** Photos originales (JPG/PNG) pour Google et les réseaux sociaux. @return array<int, string> */
+    public function getOriginalImageUrlsAttribute(): array
+    {
+        $urls = collect($this->images ?? [])->filter()->map(fn ($p) => asset('uploads/'.$p))->values()->all();
+
+        return $urls ?: [asset('images/og-image.jpg')];
+    }
+
+    /** Miniatures légères (cartes, vignettes). @return array<int, string> */
+    public function getThumbUrlsAttribute(): array
+    {
+        $urls = collect($this->images ?? [])->filter()->map(fn ($p) => Img::url($p, 'sm'))->values()->all();
+
+        return $urls ?: [asset('images/logo-160.webp')];
+    }
+
     /** @return array<int, string> */
     public function getGalleryUrlsAttribute(): array
     {
-        $urls = collect($this->images ?? [])->filter()->map(fn ($p) => asset('uploads/'.$p))->values()->all();
+        $urls = collect($this->images ?? [])->filter()->map(fn ($p) => Img::url($p))->values()->all();
 
         return $urls ?: [asset('images/logo.png')];
     }

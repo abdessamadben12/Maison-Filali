@@ -2,7 +2,10 @@
 @php($embed = config('shop.maps_embed'))
 @if ($embed)
     <div class="map map-embed" @isset($height) style="height:{{ $height }}px;flex:none" @endisset>
-        <iframe src="{{ $embed }}" title="Plan d'accès — Maison Filali" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        {{-- La carte (≈ 500 Ko de Google) se charge seulement quand on arrive dessus --}}
+        <img src="{{ asset('images/map.png') }}" alt="" loading="lazy" decoding="async" width="620" height="380">
+        <iframe data-src="{{ $embed }}" title="Plan d'accès — Maison Filali" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <noscript><iframe src="{{ $embed }}" title="Plan d'accès — Maison Filali" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></noscript>
     </div>
 @else
     <a class="map" href="{{ config('shop.maps_url') }}" target="_blank" rel="noopener" aria-label="Ouvrir dans Google Maps" @isset($height) style="height:{{ $height }}px;flex:none" @endisset>

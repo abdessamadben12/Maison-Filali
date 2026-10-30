@@ -1,8 +1,16 @@
 @extends('layouts.site')
 
+@push('preload')
+    <link rel="preload" as="image" href="{{ asset('images/hero.webp') }}" imagesrcset="{{ asset('images/hero-800.webp') }} 800w, {{ asset('images/hero.webp') }} 1440w" imagesizes="100vw" fetchpriority="high">
+@endpush
+@push('head')
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::store()) }}
+    {{ \App\Support\Seo::jsonLd(\App\Support\Seo::website()) }}
+@endpush
+
 @section('content')
 <section class="hero">
-    <img src="{{ asset('images/hero.jpg') }}" alt="Caftans Maison Filali dans un riad">
+    <img src="{{ asset('images/hero.webp') }}" srcset="{{ asset('images/hero-800.webp') }} 800w, {{ asset('images/hero.webp') }} 1440w" sizes="100vw" width="1440" height="823" fetchpriority="high" alt="Caftans, takchita et djellaba Maison Filali présentés dans un riad">
     <div class="veil"></div>
     <div class="content">
         <div class="kicker"><x-ico name="i-star" :s="16"/><span class="eyebrow">Maison Filali · Fait main</span></div>
@@ -16,7 +24,7 @@
     <div class="hero-cats">
         @foreach ($categories->take(4) as $cat)
             <a href="{{ route('category', $cat) }}">
-                <img class="thumb" src="{{ $cat->image_url }}" alt="">
+                <img class="thumb" src="{{ $cat->thumb_url }}" alt="" width="48" height="62">
                 <span class="t"><strong>{{ $cat->name }}</strong><small>Découvrir</small></span>
                 <x-ico name="i-chev" :s="18"/>
             </a>
@@ -47,7 +55,7 @@
         <div class="hscroll univ" id="univ">
             @foreach ($categories as $cat)
                 <a class="arch-card" href="{{ route('category', $cat) }}">
-                    <div class="arch"><img src="{{ $cat->image_url }}" alt="{{ $cat->name }}" loading="lazy"></div>
+                    <div class="arch"><img src="{{ $cat->thumb_url }}" alt="{{ $cat->name }} Maison Filali" loading="lazy" decoding="async" width="284" height="400"></div>
                     <h3>{{ $cat->name }}</h3>
                     <span class="link-gold">Découvrir</span>
                 </a>

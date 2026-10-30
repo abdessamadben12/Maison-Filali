@@ -1,6 +1,7 @@
 @extends('layouts.site')
 
 @section('title', 'Mon compte — Maison Filali')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <section class="account">

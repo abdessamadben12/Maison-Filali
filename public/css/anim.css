@@ -16,6 +16,8 @@
 @keyframes mf-fade-in{from{opacity:0}to{opacity:1}}
 @keyframes mf-fade-out{to{opacity:0}}
 @keyframes mf-up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+/* Sans opacité 0 au départ : le texte reste mesurable par Google (LCP) */
+@keyframes mf-rise{from{opacity:.01;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes mf-line{from{transform:translateY(105%)}to{transform:none}}
 @keyframes mf-zoom-out{from{scale:1.12}to{scale:1}}
 @keyframes mf-spin{to{transform:rotate(360deg)}}
@@ -49,11 +51,11 @@
 .anim .hero h1 .ln:nth-child(1)>span{animation-delay:.25s}
 .anim .hero h1 .ln:nth-child(2)>span{animation-delay:.38s}
 .anim .hero h1 .ln:nth-child(3)>span{animation-delay:.51s}
-.anim .hero .kicker{animation:mf-up .9s var(--ease-out) .1s both}
+.anim .hero .kicker{animation:mf-rise .9s var(--ease-out) .1s both}
 .anim .hero .kicker .ico{animation:mf-spin 14s linear infinite}
-.anim .hero .content>p{animation:mf-up 1s var(--ease-out) .75s both}
-.anim .hero .ctas{animation:mf-up 1s var(--ease-out) .9s both}
-.anim .hero-cats{animation:mf-up 1.1s var(--ease-out) 1.05s both}
+.anim .hero .content>p{animation:mf-rise 1s var(--ease-out) .75s both}
+.anim .hero .ctas{animation:mf-rise 1s var(--ease-out) .9s both}
+.anim .hero-cats{animation:mf-rise 1.1s var(--ease-out) 1.05s both}
 .hero-cats a{transition:background .3s}
 .hero-cats a:hover{background:var(--cream)}
 .hero-cats .thumb{transition:transform .5s var(--ease-out)}
@@ -137,8 +139,7 @@
 .anim .map .pin>span{animation:mf-pulse 2.4s ease-out 1.4s infinite}
 
 /* ---------- Pages intérieures ---------- */
-.anim .cat-hero>img{animation:mf-zoom-out 2.2s var(--ease-out) both}
-.anim .cat-hero .txt>*{animation:mf-up .9s var(--ease-out) both}
+.anim .cat-hero .txt>*{animation:mf-rise .9s var(--ease-out) both}
 .anim .cat-hero .txt>*:nth-child(2){animation-delay:.12s}
 .anim .cat-hero .txt>*:nth-child(3){animation-delay:.24s}
 

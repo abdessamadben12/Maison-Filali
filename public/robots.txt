@@ -1,2 +1,11 @@
+# Ce fichier n'est plus utilisé : le robots.txt est généré par Laravel (SeoController).
+# Version de secours (serveur sans .htaccess, ex. Nginx) :
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /mon-compte
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /commande
+Disallow: /suivre-ma-commande
+
+Sitemap: https://maisonfilali.ma/sitemap.xml

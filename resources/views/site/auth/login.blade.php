@@ -1,18 +1,19 @@
 @extends('layouts.site')
 
 @section('title', ($mode === 'register' ? 'Créer un compte' : 'Connexion').' — Maison Filali')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <section class="auth">
     <div class="left">
         <img class="pattern" src="{{ asset('images/zellige-tile.png') }}" alt="">
-        <div class="frame"><img src="{{ asset('images/login-photo.png') }}" alt=""></div>
+        <div class="frame"><img src="{{ asset('images/login-photo.webp') }}" alt=""></div>
         <blockquote>« L'élégance marocaine,<br>cousue main. »</blockquote>
     </div>
     <div class="right">
         <div class="form">
             <div class="hd">
-                <img src="{{ asset('images/logo.png') }}" alt="">
+                <img src="{{ asset('images/logo-160.webp') }}" alt="" width="64" height="64">
                 <h1>Bienvenue</h1>
                 <p>{{ $mode === 'register' ? 'Créez votre compte pour suivre vos commandes' : 'Connectez-vous pour suivre vos commandes' }}</p>
             </div>

@@ -1,10 +1,11 @@
 @extends('layouts.site')
 
 @section('title', 'Suivre ma commande — Maison Filali')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <section class="thanks">
-    <x-site-image src="{{ asset('images/zellige.png') }}" alt="" />
+    <img src="{{ asset('images/zellige.png') }}" alt="">
     <div class="in">
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
             <span class="eyebrow">Suivi</span>

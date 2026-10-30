@@ -13,6 +13,18 @@
         });
     });
 
+    // Carte Google Maps : chargée à l'approche (économise ~500 Ko au chargement de la page)
+    var lazyMaps = document.querySelectorAll('iframe[data-src]');
+    function loadMap(f) { f.src = f.getAttribute('data-src'); f.removeAttribute('data-src'); }
+    if ('IntersectionObserver' in window) {
+        var mio = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) { if (e.isIntersecting) { loadMap(e.target); mio.unobserve(e.target); } });
+        }, { rootMargin: '300px 0px' });
+        lazyMaps.forEach(function (f) { mio.observe(f); });
+    } else {
+        lazyMaps.forEach(loadMap);
+    }
+
     // Afficher / masquer un mot de passe
     document.querySelectorAll('[data-reveal]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -28,17 +40,11 @@
         document.querySelectorAll('[data-hs-next="' + track.id + '"]').forEach(function (b) { b.disabled = track.scrollLeft >= max; });
     }
     document.querySelectorAll('.hscroll[id]').forEach(function (track) {
-        var frame = null;
-        function scheduleUpdate() {
-            if (frame !== null) return;
-            frame = window.requestAnimationFrame(function () { frame = null; hsUpdate(track); });
-        }
         var step = function () { var c = track.firstElementChild; return c ? (c.getBoundingClientRect().width + 24) * 2 : 300; };
-        document.querySelectorAll('[data-hs-prev="' + track.id + '"]').forEach(function (b) { b.addEventListener('click', function () { track.scrollBy({ left: -step() }); }); });
-        document.querySelectorAll('[data-hs-next="' + track.id + '"]').forEach(function (b) { b.addEventListener('click', function () { track.scrollBy({ left: step() }); }); });
-        track.addEventListener('scroll', scheduleUpdate, { passive: true });
-        window.addEventListener('resize', scheduleUpdate);
-        if (window.ResizeObserver) new ResizeObserver(scheduleUpdate).observe(track);
+        document.querySelectorAll('[data-hs-prev="' + track.id + '"]').forEach(function (b) { b.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: "smooth" }); }); });
+        document.querySelectorAll('[data-hs-next="' + track.id + '"]').forEach(function (b) { b.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: "smooth" }); }); });
+        track.addEventListener('scroll', function () { hsUpdate(track); }, { passive: true });
+        window.addEventListener('resize', function () { hsUpdate(track); });
         hsUpdate(track);
     });
     document.querySelectorAll('.ctab').forEach(function (tab) {
@@ -46,7 +52,6 @@
             var cat = tab.getAttribute('data-cat');
             document.querySelectorAll('.ctab').forEach(function (t) { t.classList.toggle('on', t === tab); });
             var track = document.getElementById('shopTrack');
-            if (!track) return;
             track.querySelectorAll('.slide').forEach(function (s) { s.hidden = !!cat && s.getAttribute('data-cat') !== cat; });
             track.scrollLeft = 0;
             hsUpdate(track);
@@ -62,11 +67,7 @@
     if (!root) return;
 
     var cfg = window.FILALI_PRODUCT || { price: 0 };
-    var variants;
-    try {
-        variants = JSON.parse(root.getAttribute('data-variants') || '[]');
-        if (!Array.isArray(variants)) return;
-    } catch (e) { return; }
+    var variants = JSON.parse(root.getAttribute('data-variants') || '[]');
     var customAllowed = root.getAttribute('data-custom') === '1';
     var colorBtns = Array.prototype.slice.call(root.querySelectorAll('[data-color]'));
     var sizeBtns = Array.prototype.slice.call(root.querySelectorAll('[data-size]'));
@@ -79,10 +80,7 @@
     var mainPic = document.getElementById('mainPic');
     root.querySelectorAll('.thumbs button').forEach(function (b) {
         b.addEventListener('click', function () {
-            mainPic.removeAttribute('srcset');
             mainPic.src = b.getAttribute('data-src');
-            var srcset = b.getAttribute('data-srcset');
-            if (srcset) mainPic.srcset = srcset;
             root.querySelectorAll('.thumbs button').forEach(function (x) { x.classList.remove('on'); });
             b.classList.add('on');
         });
@@ -186,7 +184,7 @@
         var ov = variants.find(function (v) { return v.id === cfg.oldVariant; });
         if (ov) { state.color = ov.color_id; state.size = ov.size_id; }
     }
-    if (cfg.oldCustom && customAllowed) state.custom = true;
+    if (cfg.oldCustom) state.custom = true;
     if (cfg.oldQty) qtyInput.value = cfg.oldQty;
     render();
 
@@ -207,8 +205,7 @@
                 return;
             }
         }
-        var qty = Math.max(1, Math.min(Number(qtyInput.max) || 10, Math.floor(Number(qtyInput.value)) || 1));
-        qtyInput.value = qty;
+        var qty = Math.max(1, Number(qtyInput.value) || 1);
         document.getElementById('fVariant').value = variant ? variant.id : '';
         document.getElementById('fCustom').value = state.custom ? 1 : 0;
         document.getElementById('fColor').value = state.color || '';
@@ -237,23 +234,4 @@
     var ca = document.getElementById('createAccount');
     if (ca) ca.addEventListener('change', function () { document.getElementById('acctExtra').classList.toggle('show', ca.checked); });
     if (modal.getAttribute('data-open') === '1') openModal();
-
-    var form = modal.querySelector('[data-prevent-double-submit]');
-    if (form) {
-        var submitting = false;
-        var submit = form.querySelector('[type="submit"]');
-        var submitLabel = submit.textContent;
-        function resetSubmit() {
-            submitting = false;
-            submit.disabled = false;
-            submit.textContent = submitLabel;
-        }
-        form.addEventListener('submit', function (event) {
-            if (submitting) { event.preventDefault(); return; }
-            submitting = true;
-            submit.disabled = true;
-            submit.textContent = 'Envoi en cours…';
-        });
-        window.addEventListener('pageshow', resetSubmit);
-    }
 })();

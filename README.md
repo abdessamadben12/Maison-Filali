@@ -75,7 +75,7 @@ bouton « Historique » sur la page Stocks. Le seuil « stock faible » se règl
 | Téléphone, WhatsApp, Instagram, Facebook, TikTok, adresse, horaires, carte Google Maps | **Admin → Paramètres** (valeurs par défaut : `config/shop.php`) |
 | Liste des villes, seuil de stock faible | `config/shop.php` |
 | Textes des pages (Notre maison, CGV, mentions légales…) | `app/Support/Pages.php` (les mentions `[à compléter]` sont à remplir) |
-| Styles du site | `public/css/site.css` |
+| Styles du site | `public/css/site.css` (animations : `public/css/anim.css`) |
 | Interactions (choix taille, fenêtre de commande) | `public/js/site.js` |
 | Gabarits des pages | `resources/views/site/…` et `resources/views/layouts/site.blade.php` |
 | Administration | `app/Filament/…` |
@@ -103,7 +103,27 @@ Créez la base `maison_filali` dans phpMyAdmin, puis : `php artisan migrate --se
 - Puis : `php artisan migrate --force` et `php artisan optimize`.
 - Le dossier `storage/` et `public/uploads/` doivent être accessibles en écriture.
 
-## 6. Mettre à jour les dépendances (développeur)
+### Avant la mise en ligne (performance)
+```
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan images:optimize
+php artisan optimize
+```
+- `images:optimize` crée les versions WebP légères des photos existantes (les nouvelles photos envoyées depuis l'admin sont optimisées automatiquement). Nécessite l'extension PHP `gd`.
+- `php artisan optimize` met en cache la configuration, les routes et les vues. **À relancer après chaque modification de fichier** (ou `php artisan optimize:clear` pour annuler).
+- Dans `.env` : `CACHE_STORE=file` (plus rapide que `database` sur un seul serveur).
+- `public/.htaccess` active la compression, le cache navigateur et la redirection vers `https://maisonfilali.ma` (sans www).
+
+## 6. SEO technique (déjà en place)
+
+- **Plan du site** : `/sitemap.xml` (produits avec photos, catégories, pages), mis à jour automatiquement. À déclarer dans Google Search Console.
+- **robots.txt** : `/robots.txt` généré par Laravel. Il bloque l'admin, l'espace client, la commande, et **tout le site tant que `APP_ENV` n'est pas `production`** (évite d'indexer une version de test).
+- Chaque page a son titre, sa description, une URL canonique et l'aperçu de partage (Open Graph) ; les pages filtrées, de recherche, de compte et de commande sont en `noindex`.
+- Données structurées Google (JSON-LD) : boutique (ClothingStore), site + recherche, produits (prix MAD, stock, retours 7 jours), fil d'Ariane.
+- Page 404 personnalisée.
+
+## 7. Mettre à jour les dépendances (développeur)
 
 ```
 composer install
