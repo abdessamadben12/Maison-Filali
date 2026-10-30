@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('fr');
 
-        // En ligne : toutes les URL (canonical, sitemap, partage) en https://maisonfilali.ma
+        // En ligne : toutes les URL (canonical, sitemap, partage) selon APP_URL (ex. https://maisonfilali.com)
         if ($this->app->isProduction()) {
             URL::forceRootUrl(config('app.url'));
             if (str_starts_with((string) config('app.url'), 'https://')) {

@@ -12,7 +12,7 @@ return [
     // Laisser vide (null) pour masquer l'icône sur le site
     'facebook_url' => env('SHOP_FACEBOOK_URL'),
     'tiktok_url' => env('SHOP_TIKTOK_URL'),
-    'domain' => 'https://maisonfilali.ma',
+    'domain' => 'https://maisonfilali.com',
     // true = demander à Google de ne rien indexer (site de test). Laisser false en ligne.
     'noindex' => (bool) env('SHOP_NOINDEX', false),
     'address' => "Roches Noires, Maamoura, Ennakhil\nLot L1 — Casablanca, Maroc",

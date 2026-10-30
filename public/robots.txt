@@ -11,4 +11,4 @@ Disallow: /suivre-ma-commande
 Disallow: /*?*q=
 Disallow: /*?*tri=
 
-Sitemap: https://maisonfilali.ma/sitemap.xml
+Sitemap: https://maisonfilali.com/sitemap.xml

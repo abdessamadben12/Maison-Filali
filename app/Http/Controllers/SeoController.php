@@ -12,7 +12,7 @@ class SeoController extends Controller
     /** Plan du site pour Google (mis en cache, régénéré quand un produit ou une catégorie change). */
     public function sitemap()
     {
-        $xml = Cache::store('file')->remember('sitemap.xml', now()->addHours(12), function () {
+        $xml = Cache::store('file')->remember('sitemap.v2', now()->addHours(12), function () {
             $urls = [
                 ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
                 ['loc' => route('catalogue'), 'priority' => '0.9', 'changefreq' => 'daily'],
@@ -32,7 +32,7 @@ class SeoController extends Controller
             return view('seo.sitemap', ['urls' => $urls])->render();
         });
 
-        return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+        return $this->clean(ltrim($xml), 'application/xml; charset=UTF-8');
     }
 
     public function robots()
@@ -55,6 +55,19 @@ class SeoController extends Controller
             $lines = ['User-agent: *', 'Disallow: /', '', 'Sitemap: '.url('sitemap.xml')];
         }
 
-        return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+        return $this->clean(implode("\n", $lines)."\n", 'text/plain; charset=UTF-8');
+    }
+
+    /**
+     * Réponse « propre » : si un fichier PHP a affiché un espace ou une ligne vide par erreur
+     * (souvent avant « <?php » ou après « ?> »), on l'efface pour que le XML commence bien par <?xml.
+     */
+    private function clean(string $body, string $type)
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        return response($body, 200, ['Content-Type' => $type, 'X-Robots-Tag' => 'noindex']);
     }
 }

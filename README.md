@@ -1,6 +1,6 @@
 # Maison Filali — site e-commerce (Laravel 12 + Filament 5)
 
-Site de la boutique **Maison Filali** — https://maisonfilali.ma (vêtements traditionnels : caftans, takchitas, djellabas, babouches) réalisé d'après la maquette Figma
+Site de la boutique **Maison Filali** — https://maisonfilali.com (vêtements traditionnels : caftans, takchitas, djellabas, babouches) réalisé d'après la maquette Figma
 « Maison Filali — Maquette E-commerce ».
 
 - **Site client** (Blade + CSS maison, sans build) : accueil, catalogue avec filtres, page produit, commande
@@ -99,7 +99,7 @@ Créez la base `maison_filali` dans phpMyAdmin, puis : `php artisan migrate --se
 ## 5. Mise en ligne (hébergement mutualisé ou VPS)
 
 - Le dossier public du domaine doit pointer sur `maison-filali/public`.
-- Dans `.env` : `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://maisonfilali.ma`.
+- Dans `.env` : `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://maisonfilali.com` (l'adresse exacte du site, utilisée pour le sitemap, les liens canoniques et le partage).
 - Puis : `php artisan migrate --force` et `php artisan optimize`.
 - Le dossier `storage/` et `public/uploads/` doivent être accessibles en écriture.
 
@@ -113,7 +113,7 @@ php artisan optimize
 - `images:optimize` crée les versions WebP légères des photos existantes (les nouvelles photos envoyées depuis l'admin sont optimisées automatiquement). Nécessite l'extension PHP `gd`.
 - `php artisan optimize` met en cache la configuration, les routes et les vues. **À relancer après chaque modification de fichier** (ou `php artisan optimize:clear` pour annuler).
 - Dans `.env` : `CACHE_STORE=file` (plus rapide que `database` sur un seul serveur).
-- `public/.htaccess` active la compression, le cache navigateur et la redirection vers `https://maisonfilali.ma` (sans www).
+- `public/.htaccess` active la compression, le cache navigateur et la redirection vers https et sans « www ».
 
 ### E-mails du formulaire de contact
 Chaque message de la page Contact est enregistré dans l'admin (« Messages ») **et** envoyé à l'adresse réglée dans

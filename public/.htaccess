@@ -5,13 +5,13 @@
 
     RewriteEngine On
 
-    # SEO : une seule adresse officielle -> https://maisonfilali.ma (sans www)
-    RewriteCond %{HTTP_HOST} ^www\.maisonfilali\.ma$ [NC]
-    RewriteRule ^ https://maisonfilali.ma%{REQUEST_URI} [L,R=301]
-    RewriteCond %{HTTP_HOST} ^maisonfilali\.ma$ [NC]
+    # SEO : une seule adresse officielle, en https et sans « www »
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
     RewriteCond %{HTTPS} off
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
-    RewriteRule ^ https://maisonfilali.ma%{REQUEST_URI} [L,R=301]
+    RewriteCond %{HTTP_HOST} maisonfilali\. [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
