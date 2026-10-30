@@ -43,6 +43,7 @@ class Category extends Model
     {
         Cache::store('file')->forget('nav.categories');
         Cache::store('file')->forget('nav.categories.v2');
+        Cache::store('file')->forget('footer.categories');
         Cache::store('file')->forget('sitemap.xml');
     }
 

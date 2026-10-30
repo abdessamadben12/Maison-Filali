@@ -45,6 +45,7 @@
 </head>
 <body>
 <div class="topbar">
+    <span class="m-only">Paiement à la livraison · Tout le Maroc</span>
     <span>Livraison partout au Maroc</span>
     <x-ico name="i-dot" :s="12"/>
     <span>Paiement à la livraison</span>
@@ -54,7 +55,9 @@
 
 <header class="header">
     <div class="inner">
-        <button class="burger" type="button" data-toggle="#nav" aria-label="Menu"><i></i></button>
+        <div class="h-left">
+            <button class="burger" type="button" data-toggle="#nav" aria-label="Menu"><i></i></button>
+        </div>
         <nav class="nav" id="nav">
             <a href="{{ route('home') }}" @class(['active' => request()->routeIs('home')])>Accueil</a>
             <a href="{{ route('catalogue') }}" @class(['active' => request()->routeIs('catalogue') && ! request()->route('category')])>Boutique</a>
@@ -63,6 +66,11 @@
             @endforeach
             <a href="{{ route('page', 'notre-histoire') }}" @class(['active' => request()->is('maison/notre-histoire')])>Notre histoire</a>
             <a class="nav-m" href="{{ route('contact') }}" @class(['active' => request()->routeIs('contact')])>Contact</a>
+            {{-- Mobile : recherche en bas du menu --}}
+            <form class="nav-search m-only" action="{{ route('catalogue') }}" method="get" role="search">
+                <input type="search" name="q" value="{{ request('q') }}" placeholder="Rechercher un caftan, des babouches…" aria-label="Rechercher">
+                <button type="submit" aria-label="Lancer la recherche"><x-ico name="i-search" :s="18"/></button>
+            </form>
         </nav>
         <a class="brand" href="{{ route('home') }}">
             <img src="{{ asset('images/logo-160.webp') }}" alt="Maison Filali — accueil" width="52" height="52">
@@ -70,7 +78,7 @@
         </a>
         <div class="header-actions">
             <a class="account-link contact-link" href="{{ route('contact') }}"><span>Contact</span></a>
-            <button type="button" data-toggle="#search" aria-label="Rechercher"><x-ico name="i-search" :s="21"/></button>
+            <button class="d-only" type="button" data-toggle="#search" aria-label="Rechercher"><x-ico name="i-search" :s="21"/></button>
             <a class="account-link" href="{{ auth()->check() && ! auth()->user()->is_admin ? route('account.orders') : route('login') }}" aria-label="Mon compte">
                 <x-ico name="i-user" :s="21"/><span>Mon compte</span>
             </a>
@@ -141,6 +149,49 @@
                 <li><x-ico name="i-f-clock" :s="18"/><span>{{ config('shop.hours_short') }}</span></li>
             </ul>
         </div>
+    </div>
+    {{-- Pied de page mobile (maquette : logo, accordéons, réseaux) --}}
+    <div class="footer-m m-only">
+        <div class="logo">
+            <img src="{{ asset('images/logo-160.webp') }}" alt="" width="48" height="48" loading="lazy">
+            <div><strong>MAISON FILALI</strong><small>Vêtements traditionnels</small></div>
+        </div>
+        <details>
+            <summary>Boutique</summary>
+            <ul>
+                <li><a href="{{ route('catalogue') }}">Toute la boutique</a></li>
+                @foreach ($footerCategories ?? $navCategories as $navCat)
+                    <li><a href="{{ route('category', $navCat) }}">{{ $navCat->name }}</a></li>
+                @endforeach
+            </ul>
+        </details>
+        <details>
+            <summary>Aide &amp; livraison</summary>
+            <ul>
+                <li><a href="{{ route('page', 'comment-commander') }}">Comment commander</a></li>
+                <li><a href="{{ route('track') }}">Suivre ma commande</a></li>
+                <li><a href="{{ route('page', 'guide-des-tailles') }}">Guide des tailles</a></li>
+                <li><a href="{{ route('page', 'livraison-retours') }}">Livraison &amp; retours</a></li>
+                <li><a href="{{ route('page', 'cgv') }}">Conditions générales</a></li>
+                <li><a href="{{ route('page', 'mentions-legales') }}">Mentions légales</a> · <a href="{{ route('page', 'confidentialite') }}">Confidentialité</a></li>
+            </ul>
+        </details>
+        <details>
+            <summary>Showroom &amp; contact</summary>
+            <ul>
+                <li>{!! nl2br(e(config('shop.address'))) !!}</li>
+                <li><a href="tel:{{ str_replace(' ', '', config('shop.phone')) }}">{{ config('shop.phone') }}</a></li>
+                <li>{{ config('shop.hours') }}</li>
+                <li><a href="{{ route('contact') }}">Nous écrire</a> · <a href="{{ config('shop.maps_url') }}" target="_blank" rel="noopener">Itinéraire</a></li>
+            </ul>
+        </details>
+        <div class="socials">
+            @if (config('shop.instagram_url'))<a href="{{ config('shop.instagram_url') }}" target="_blank" rel="noopener" aria-label="Instagram"><x-ico name="i-s-insta" :s="18"/></a>@endif
+            @if (config('shop.facebook_url'))<a href="{{ config('shop.facebook_url') }}" target="_blank" rel="noopener" aria-label="Facebook"><x-ico name="i-s-fb" :s="18"/></a>@endif
+            @if (config('shop.tiktok_url'))<a href="{{ config('shop.tiktok_url') }}" target="_blank" rel="noopener" aria-label="TikTok"><x-ico name="i-s-tiktok" :s="16"/></a>@endif
+            <a href="https://wa.me/{{ config('shop.whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp"><x-ico name="i-s-wa" :s="18"/></a>
+        </div>
+        <p class="copy">© {{ date('Y') }} Maison Filali <span class="credit">· Créé par <a href="https://fastdevweb.com" target="_blank" rel="noopener">FastDevWeb</a></span></p>
     </div>
     <div class="bottom">
         <div>

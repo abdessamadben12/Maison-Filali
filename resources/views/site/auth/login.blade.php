@@ -82,10 +82,6 @@
                 </form>
             @endif
 
-            <div class="info">
-                <strong>Pas besoin de compte pour commander</strong>
-                <p>Le compte est facultatif : il sert seulement à suivre vos commandes.</p>
-            </div>
         </div>
     </div>
 </section>

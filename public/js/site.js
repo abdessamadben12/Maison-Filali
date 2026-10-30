@@ -38,6 +38,78 @@
     window.addEventListener('resize', fitNav);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
 
+    // Boutique mobile : panneau Filtres plein écran
+    var filters = document.getElementById('filters');
+    if (filters) {
+        var openF = function () { filters.classList.add('open'); document.body.classList.add('filters-open'); };
+        var closeF = function () { filters.classList.remove('open'); document.body.classList.remove('filters-open'); };
+        document.querySelectorAll('[data-open-filters]').forEach(function (b) { b.addEventListener('click', openF); });
+        filters.querySelectorAll('[data-close-filters]').forEach(function (b) { b.addEventListener('click', closeF); });
+        // Sections repliables (mobile)
+        filters.querySelectorAll('.fgroup h3').forEach(function (h) {
+            h.addEventListener('click', function () { if (window.innerWidth <= 900) h.parentNode.classList.toggle('closed'); });
+        });
+        // Réglette de prix ↔ cases « min / max »
+        filters.querySelectorAll('.range2').forEach(function (r) {
+            var lo = r.querySelector('[data-r=min]'), hi = r.querySelector('[data-r=max]'), bar = r.querySelector('.track i');
+            var nMin = filters.querySelector('input[name=prix_min]'), nMax = filters.querySelector('input[name=prix_max]');
+            var min = +r.getAttribute('data-min'), max = +r.getAttribute('data-max');
+            function paint() {
+                var a = Math.min(+lo.value, +hi.value), b = Math.max(+lo.value, +hi.value);
+                bar.style.left = ((a - min) / (max - min) * 100) + '%'; bar.style.right = (100 - (b - min) / (max - min) * 100) + '%';
+            }
+            function fromRange(e) {
+                if (+lo.value > +hi.value) { if (e.target === lo) lo.value = hi.value; else hi.value = lo.value; }
+                nMin.value = +lo.value > min ? lo.value : ''; nMax.value = +hi.value < max ? hi.value : ''; paint();
+            }
+            lo.addEventListener('input', fromRange); hi.addEventListener('input', fromRange);
+            [nMin, nMax].forEach(function (n) { n.addEventListener('input', function () {
+                lo.value = nMin.value || min; hi.value = nMax.value || max; paint();
+            }); });
+            paint();
+        });
+
+        // « Voir N produits » mis à jour à chaque changement
+        var label = filters.querySelector('[data-count-label]');
+        var timer;
+        filters.addEventListener('change', function () {
+            if (!label || window.innerWidth > 900) return;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                var q = new URLSearchParams(new FormData(filters)); q.set('_count', '1');
+                fetch(filters.getAttribute('data-count-url') + '?' + q.toString(), { headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) { label.textContent = 'Voir ' + d.count + ' produit' + (d.count > 1 ? 's' : ''); })
+                    .catch(function () {});
+            }, 250);
+        });
+    }
+
+    // Boutique : « Voir plus » ajoute la page suivante à la grille, sans recharger
+    document.addEventListener('click', function (e) {
+        var more = e.target.closest('[data-more]');
+        if (!more) return;
+        e.preventDefault();
+        more.classList.add('loading'); more.textContent = 'Chargement…';
+        fetch(more.href, { headers: { 'X-Requested-With': 'fetch' } }).then(function (r) { return r.text(); }).then(function (html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var grid = document.querySelector('.results .grid');
+            var promo = grid.querySelector('.promo');
+            doc.querySelectorAll('.results .grid > .pcard').forEach(function (card) {
+                card.classList.add('appended');
+                grid.insertBefore(document.importNode(card, true), promo);
+            });
+            var nextPromo = doc.querySelector('.results .grid > .promo');
+            if (nextPromo && !promo) grid.appendChild(document.importNode(nextPromo, true));
+            ['#seen', '.pager'].forEach(function (sel) {
+                var cur = document.querySelector(sel), fresh = doc.querySelector(sel);
+                if (cur && fresh) cur.replaceWith(document.importNode(fresh, true));
+                else if (cur && !fresh) cur.remove();
+            });
+            history.replaceState(null, '', more.href);
+        }).catch(function () { location.href = more.href; });
+    });
+
     // Afficher / masquer un mot de passe
     document.querySelectorAll('[data-reveal]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -156,7 +228,7 @@
             else { text = 'En stock — choisissez votre taille'; }
         }
         badge.className = 'stock-badge ' + cls;
-        badge.querySelector('span').textContent = text;
+        badge.querySelector('span').textContent = window.innerWidth <= 900 ? text.split(' — ')[0] : text;
 
         var max = state.custom ? 5 : Math.max(1, hasSizes() ? stockFor(state.color, state.size) : colorStock(state.color));
         qtyInput.max = Math.min(10, max);
@@ -209,6 +281,7 @@
             if (hasSizes() && !state.size) {
                 optErr.textContent = 'Choisissez une taille avant de commander.';
                 optErr.hidden = false;
+                optErr.scrollIntoView({ block: 'center', behavior: 'smooth' });
                 return;
             }
             variant = findVariant(state.color, state.size);
@@ -247,4 +320,22 @@
     var ca = document.getElementById('createAccount');
     if (ca) ca.addEventListener('change', function () { document.getElementById('acctExtra').classList.toggle('show', ca.checked); });
     if (modal.getAttribute('data-open') === '1') openModal();
+
+    // ---------- Mobile : galerie au doigt, barre Total / Commander, accordéons fermés ----------
+    document.querySelectorAll('[data-order]').forEach(function (b) { b.addEventListener('click', openModal); });
+    var mTotal = document.getElementById('mTotal');
+    function updTotal() { if (mTotal) mTotal.textContent = money(cfg.price * Math.max(1, Number(qtyInput.value) || 1)); }
+    root.addEventListener('click', function () { setTimeout(updTotal, 0); });
+    qtyInput.addEventListener('input', updTotal);
+    updTotal();
+    var track = document.getElementById('mTrack'), dots = document.querySelectorAll('#mDots i');
+    if (track && dots.length) {
+        track.addEventListener('scroll', function () {
+            var i = Math.round(track.scrollLeft / track.clientWidth);
+            dots.forEach(function (d, k) { d.classList.toggle('on', k === i); });
+        }, { passive: true });
+    }
+    if (window.innerWidth <= 900) {
+        root.querySelectorAll('details.acc[open]').forEach(function (d) { d.open = false; });
+    }
 })();

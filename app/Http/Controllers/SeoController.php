@@ -12,7 +12,7 @@ class SeoController extends Controller
     /** Plan du site pour Google (mis en cache, régénéré quand un produit ou une catégorie change). */
     public function sitemap()
     {
-        $xml = Cache::remember('sitemap.xml', now()->addHours(12), function () {
+        $xml = Cache::store('file')->remember('sitemap.xml', now()->addHours(12), function () {
             $urls = [
                 ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
                 ['loc' => route('catalogue'), 'priority' => '0.9', 'changefreq' => 'daily'],
@@ -50,8 +50,8 @@ class SeoController extends Controller
             '',
             'Sitemap: '.url('sitemap.xml'),
         ];
-        // Hors production (test, préproduction) : ne rien indexer
-        if (! app()->isProduction()) {
+        // Site de test / préproduction : SHOP_NOINDEX=true dans .env pour tout bloquer
+        if (config('shop.noindex')) {
             $lines = ['User-agent: *', 'Disallow: /', '', 'Sitemap: '.url('sitemap.xml')];
         }
 

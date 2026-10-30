@@ -52,6 +52,7 @@ class Settings extends Page
     {
         $this->form->fill([
             'phone' => config('shop.phone'),
+            'contact_email' => config('shop.contact_email'),
             'whatsapp' => config('shop.whatsapp'),
             'hours' => config('shop.hours'),
             'address' => config('shop.address'),
@@ -68,6 +69,9 @@ class Settings extends Page
         return $schema->statePath('data')->components([
             Section::make('Contact')->icon(Heroicon::OutlinedPhone)->columns(2)->schema([
                 TextInput::make('phone')->label('Téléphone affiché')->required()->maxLength(30)->placeholder('06 78 20 88 68'),
+                TextInput::make('contact_email')->label('E-mail qui reçoit les messages du formulaire')->email()->maxLength(190)
+                    ->placeholder('contact@maisonfilali.com')
+                    ->helperText('Chaque message envoyé depuis la page Contact arrive à cette adresse (et reste visible dans « Messages »).'),
                 TextInput::make('whatsapp')->label('Numéro WhatsApp')->required()->maxLength(30)->placeholder('06 78 20 88 68')
                     ->helperText('Format 06… ou 2126… : utilisé pour tous les boutons « WhatsApp » du site.'),
                 TextInput::make('hours')->label('Horaires')->required()->maxLength(80)->placeholder('Lundi – Samedi · 10h – 20h'),
@@ -133,6 +137,7 @@ class Settings extends Page
 
         Setting::saveMany([
             'phone' => trim($d['phone']),
+            'contact_email' => trim((string) ($d['contact_email'] ?? '')) ?: null,
             'whatsapp' => $whatsapp,
             'hours' => trim($d['hours']),
             'hours_short' => trim($d['hours']),

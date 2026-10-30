@@ -22,7 +22,7 @@ class Setting extends Model
 
     /** Clés de config/shop.php modifiables depuis l'admin. */
     public const KEYS = [
-        'phone', 'whatsapp', 'hours', 'hours_short', 'address', 'address_short',
+        'phone', 'contact_email', 'whatsapp', 'hours', 'hours_short', 'address', 'address_short',
         'instagram', 'instagram_url', 'facebook_url', 'tiktok_url', 'maps_embed', 'maps_url',
     ];
 
@@ -31,7 +31,7 @@ class Setting extends Model
     {
         try {
             // Mis en cache : aucune requête SQL par page (vidé à chaque enregistrement)
-            $values = Cache::rememberForever('shop.settings', fn () => static::query()->whereIn('key', self::KEYS)->pluck('value', 'key')->all());
+            $values = Cache::store('file')->rememberForever('shop.settings', fn () => static::query()->whereIn('key', self::KEYS)->pluck('value', 'key')->all());
         } catch (Throwable) {
             return; // table pas encore créée (php artisan migrate)
         }
@@ -46,7 +46,7 @@ class Setting extends Model
         foreach ($values as $key => $value) {
             static::updateOrCreate(['key' => $key], ['value' => $value]);
         }
-        Cache::forget('shop.settings');
+        Cache::store('file')->forget('shop.settings');
     }
 
     /** Extrait l'adresse de la carte depuis le code <iframe> copié dans Google Maps (ou l'adresse seule). */

@@ -25,7 +25,7 @@
 @section('content')
 <div class="wrap">
     <div class="crumbs">
-        <a href="{{ route('home') }}">Accueil</a><x-ico name="i-crumb" :s="14"/>
+        <a class="d-only" href="{{ route('home') }}">Accueil</a><x-ico class="d-only" name="i-crumb" :s="14"/>
         <a href="{{ route('category', $product->category) }}">{{ $product->category->name }}</a><x-ico name="i-crumb" :s="14"/>
         <strong>{{ $product->name }}</strong>
     </div>
@@ -41,12 +41,26 @@
         <div class="main-pic"><img id="mainPic" src="{{ $gallery[0] }}" alt="{{ $product->name }} — {{ $product->category->name }} Maison Filali" fetchpriority="high" width="560" height="740" style="view-transition-name:p{{ $product->id }}"></div>
     </div>
 
+    {{-- Mobile : photos qui défilent au doigt + points --}}
+    <div class="m-gallery m-only">
+        <div class="m-track" id="mTrack">
+            @foreach ($gallery as $i => $url)
+                <img src="{{ $url }}" alt="{{ $i === 0 ? $product->name : '' }}" width="350" height="460" @if ($i > 0) loading="lazy" @endif decoding="async">
+            @endforeach
+        </div>
+        @if (count($gallery) > 1)
+            <div class="m-dots" id="mDots">@foreach ($gallery as $i => $url)<i @class(['on' => $i === 0])></i>@endforeach</div>
+        @endif
+    </div>
+
     <div class="pinfo">
-        <span class="eyebrow">{{ $product->category->name }}{{ $product->is_new ? ' · Nouveauté' : '' }}</span>
+        <span class="eyebrow d-only">{{ $product->category->name }}{{ $product->is_new ? ' · Nouveauté' : '' }}</span>
         <h1>{{ $product->name }}</h1>
-        <div class="price">{{ money($product->price) }}@if ($product->compare_price && $product->compare_price > $product->price)<del>{{ money($product->compare_price) }}</del>@endif</div>
-        <div><span class="stock-badge" id="stockBadge"><i></i><span>—</span></span></div>
-        @if ($product->tagline)<p class="lead">{{ $product->tagline }}</p>@endif
+        <div class="price-row">
+            <div class="price">{{ money($product->price) }}@if ($product->compare_price && $product->compare_price > $product->price)<del>{{ money($product->compare_price) }}</del>@endif</div>
+            <div><span class="stock-badge" id="stockBadge"><i></i><span>—</span></span></div>
+        </div>
+        @if ($product->tagline)<p class="lead d-only">{{ $product->tagline }}</p>@endif
 
         @if ($colors->count())
             <div class="opt" style="padding-top:6px">
@@ -87,12 +101,13 @@
                 <button class="btn btn-green" type="button" id="orderBtn">Commander</button>
             </div>
             <p class="err" id="optErr" hidden></p>
-            <div class="ask">Une question sur ce modèle ?
+            <div class="m-cod m-only"><x-ico name="i-truck" :s="22"/><span>Paiement à la livraison · Livraison partout au Maroc</span></div>
+            <div class="ask d-only">Une question sur ce modèle ?
                 <a href="https://wa.me/{{ config('shop.whatsapp') }}?text={{ rawurlencode('Bonjour, une question sur « '.$product->name.' » : ') }}" target="_blank" rel="noopener"><x-ico name="i-wa-sm" :s="14"/>Écrivez-nous</a>
             </div>
         </div>
 
-        <div class="perks">
+        <div class="perks d-only">
             <div><x-ico name="i-cod" :s="30"/><span>Paiement<br>à la livraison</span></div>
             <div><x-ico name="i-confirm" :s="30"/><span>Commande confirmée<br>par notre équipe</span></div>
             <div><x-ico name="i-exchange2" :s="30"/><span>Échange sous<br>7 jours</span></div>
@@ -116,6 +131,12 @@
             </details>
         </div>
     </div>
+</div>
+
+{{-- Mobile : barre fixe Total + Commander --}}
+<div class="m-buy m-only">
+    <div><small>Total</small><b id="mTotal">{{ money($product->price) }}</b></div>
+    <button class="btn btn-green" type="button" data-order>Commander</button>
 </div>
 
 @if ($related->count())

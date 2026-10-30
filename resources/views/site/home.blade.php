@@ -32,7 +32,7 @@
     </div>
 </section>
 
-<section class="reassure">
+<section class="reassure d-only">
     <div class="wrap">
         <div class="item"><x-ico name="i-hand" :s="44"/><div><strong>Fait main</strong><small>Par nos artisans à Casablanca</small></div></div>
         <div class="item"><x-ico name="i-confirm" :s="44"/><div><strong>Commande confirmée</strong><small>Par notre équipe sous 24 h</small></div></div>
@@ -45,7 +45,7 @@
     <div class="wrap">
         <div class="sec-head center">
             <span class="eyebrow">Nos univers</span>
-            <h2 class="h-section">{{ $categories->count() === 4 ? 'Quatre savoir-faire, une maison' : 'Nos savoir-faire, une maison' }}</h2>
+            <h2 class="h-section"><span class="d-only">{{ $categories->count() === 4 ? 'Quatre savoir-faire, une maison' : 'Nos savoir-faire, une maison' }}</span><span class="m-only">Nos catégories</span></h2>
             <div class="divider"><span></span><x-ico name="i-star-big" :s="22"/><span></span></div>
         </div>
         <div class="hscroll-ctrl center">
@@ -61,6 +61,7 @@
                 </a>
             @endforeach
         </div>
+        <div class="sec-more"><a class="link-gold" href="{{ route('catalogue') }}">Voir toutes les catégories →</a></div>
     </div>
 </section>
 
@@ -94,12 +95,13 @@
                 <div class="slide" data-cat="{{ $product->category->slug }}">@include('partials.product-card')</div>
             @endforeach
         </div>
+        <div class="sec-more m-only"><a class="link-gold" href="{{ route('catalogue') }}">Voir toute la boutique →</a></div>
     </div>
 </section>
 
 @if ($featured)
     @php($gallery = $featured->gallery_urls)
-    <section class="feature">
+    <section class="feature d-only">
         <div class="wrap">
             <div class="pics">
                 <img class="pic1" src="{{ $gallery[3] ?? $gallery[0] }}" alt="" loading="lazy">
@@ -125,7 +127,7 @@
     </section>
 @endif
 
-<section class="visit" id="visite">
+<section class="visit d-only" id="visite">
     <div class="wrap">
         <div class="info">
             <div class="sec-head">
@@ -141,5 +143,14 @@
         </div>
         @include('partials.map')
     </div>
+</section>
+
+{{-- Mobile (maquette) : bloc « Notre maison » --}}
+<section class="maison-m m-only">
+    <img src="{{ asset('images/logo-160.webp') }}" alt="Maison Filali" width="100" height="100" loading="lazy">
+    <span class="eyebrow">Notre maison</span>
+    <h2>Des pièces <em>faites main</em>, livrées partout au Maroc</h2>
+    <p class="ar" lang="ar" dir="rtl">الأناقة المغربية بلمسة يدوية</p>
+    <a class="btn btn-outline btn-block" href="{{ route('page', 'notre-histoire') }}">Notre histoire</a>
 </section>
 @endsection

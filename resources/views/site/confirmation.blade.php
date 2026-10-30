@@ -12,7 +12,10 @@
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
             <span class="eyebrow">{{ $fresh ? 'Commande enregistrée' : 'Suivi de commande' }}</span>
             <h1>{{ $fresh ? 'Merci '.$order->first_name.' !' : 'Commande '.$order->number }}</h1>
-            <p class="lead">
+            @if ($fresh)
+                <p class="lead m-only">Commande <b>{{ $order->number }}</b>. Notre équipe la confirme sous 24 h ; suivez son statut ici.</p>
+            @endif
+            <p @class(['lead', 'd-only' => $fresh])>
                 @if ($fresh)
                     Votre commande <b>{{ $order->number }}</b> est bien reçue. Notre équipe la vérifie et la confirme sous 24 h : le statut se met à jour ici{{ $order->user_id ? ' et dans votre espace client' : '' }}.
                 @else
@@ -23,7 +26,7 @@
 
         <div class="box">@include('partials.order-steps')</div>
 
-        <div class="box">
+        <div class="box recap">
             @foreach ($order->items as $line)
                 <div class="oline">
                     <img src="{{ $line->product?->thumb_urls[0] ?? asset('images/logo-160.webp') }}" alt="">

@@ -9,7 +9,6 @@ use App\Models\Size;
 use App\Support\Pages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 
 class ShopController extends Controller
 {
@@ -29,24 +28,6 @@ class ShopController extends Controller
     public function catalogue(Request $request, ?Category $category = null)
     {
         abort_if($category && ! $category->is_active, 404);
-
-        // Reject malformed / unbounded filters before casting or building SQL.
-        $validator = Validator::make($request->query(), [
-            'q' => ['nullable', 'string', 'max:150'],
-            'categories' => ['sometimes', 'array', 'max:30'],
-            'categories.*' => ['required', 'string', 'max:100'],
-            'couleurs' => ['sometimes', 'array', 'max:50'],
-            'couleurs.*' => ['required', 'integer', 'min:1'],
-            'tailles' => ['sometimes', 'array', 'max:50'],
-            'tailles.*' => ['required', 'integer', 'min:1'],
-            'prix_min' => ['nullable', 'integer', 'min:0', 'max:100000000'],
-            'prix_max' => ['nullable', 'integer', 'min:0', 'max:100000000'],
-            'stock' => ['nullable', 'boolean'],
-            'sur_mesure' => ['nullable', 'boolean'],
-            'tri' => ['nullable', 'string', 'max:30'],
-            'page' => ['nullable', 'integer', 'min:1', 'max:100000'],
-        ]);
-        abort_if($validator->fails(), 422, 'Les filtres sont invalides. Revenez au catalogue pour réessayer.');
 
         $filters = [
             'categories' => array_values(array_filter((array) $request->input('categories', []), 'is_string')),
@@ -72,11 +53,16 @@ class ShopController extends Controller
         if (! $category && $filters['categories']) {
             $query->whereHas('category', fn ($c) => $c->whereIn('slug', $filters['categories']));
         }
-        if ($filters['couleurs'] || $filters['tailles'] || $filters['stock']) {
-            $query->whereHas('variants', fn ($v) => $v
-                ->when($filters['couleurs'], fn ($v) => $v->whereIn('color_id', $filters['couleurs']))
-                ->when($filters['tailles'], fn ($v) => $v->whereIn('size_id', $filters['tailles']))
-                ->when($filters['stock'], fn ($v) => $v->where('stock', '>', 0)));
+        if ($filters['couleurs']) {
+            $query->whereHas('variants', fn ($v) => $v->whereIn('color_id', $filters['couleurs'])
+                ->when($filters['stock'], fn ($s) => $s->where('stock', '>', 0)));
+        }
+        if ($filters['tailles']) {
+            $query->whereHas('variants', fn ($v) => $v->whereIn('size_id', $filters['tailles'])
+                ->when($filters['stock'], fn ($s) => $s->where('stock', '>', 0)));
+        }
+        if ($filters['stock']) {
+            $query->whereHas('variants', fn ($v) => $v->where('stock', '>', 0));
         }
         if ($filters['sur_mesure']) {
             $query->where('is_custom_possible', true);
@@ -94,33 +80,35 @@ class ShopController extends Controller
             default => $query->orderByDesc('is_new')->orderBy('position')->latest('id'),
         };
 
-        $products = $query->orderBy('id')->paginate(12)->withQueryString();
+        // Panneau Filtres (mobile) : nombre de produits en direct
+        if ($request->boolean('_count')) {
+            return response()->json(['count' => (clone $query)->count()]);
+        }
 
-        // Keep this as a subquery: never load every product ID into PHP memory.
-        $productIds = (clone $base)->select('products.id');
+        $products = $query->paginate((int) config('shop.per_page', 12))->withQueryString();
+
+        $productIds = (clone $base)->pluck('id');
         $colors = Color::whereHas('variants', fn ($v) => $v->whereIn('product_id', $productIds))->orderBy('position')->get();
         $sizes = Size::whereHas('variants', fn ($v) => $v->whereIn('product_id', $productIds))->orderBy('type', 'desc')->orderBy('position')->get();
-        $categories = Category::active()->withCount(['products' => fn ($p) => $p->where('is_active', true)])->get();
-        $priceRange = (clone $base)->selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
 
         return view('site.catalogue', [
             'category' => $category,
             'activeCategory' => $category?->slug,
-            'categories' => $categories,
-            'totalCount' => $categories->sum('products_count'),
+            'categories' => Category::active()->withCount(['products' => fn ($p) => $p->where('is_active', true)])->get(),
+            'totalCount' => Product::active()->count(),
             'products' => $products,
             'filters' => $filters,
             'colors' => $colors,
             'sizes' => $sizes,
-            'priceRange' => [(int) $priceRange->min_price, (int) $priceRange->max_price],
-            'activePills' => $this->pills($request, $filters, $colors, $sizes, $categories),
+            'priceRange' => [(int) (clone $base)->min('price'), (int) (clone $base)->max('price')],
+            'activePills' => $this->pills($request, $filters, $colors, $sizes),
         ]);
     }
 
     public function product(Product $product)
     {
         abort_unless($product->is_active && $product->category?->is_active, 404);
-        $product->loadMissing(['category', 'variants.color', 'variants.size']);
+        $product->load(['category', 'variants.color', 'variants.size']);
 
         $variantsJson = $product->variants->map(fn ($v) => [
             'id' => $v->id,
@@ -157,7 +145,7 @@ class ShopController extends Controller
     }
 
     /** Étiquettes des filtres actifs avec un lien pour les retirer. */
-    private function pills(Request $request, array $filters, $colors, $sizes, $categories): array
+    private function pills(Request $request, array $filters, $colors, $sizes): array
     {
         $pills = [];
         $remove = function (string $key, $value = null) use ($request) {
@@ -175,7 +163,7 @@ class ShopController extends Controller
             $pills[] = ['label' => '« '.$request->input('q').' »', 'remove' => $remove('q')];
         }
         foreach ($filters['categories'] as $slug) {
-            $pills[] = ['label' => $categories->firstWhere('slug', $slug)?->name ?? $slug, 'remove' => $remove('categories', $slug)];
+            $pills[] = ['label' => Category::where('slug', $slug)->value('name') ?? $slug, 'remove' => $remove('categories', $slug)];
         }
         foreach ($filters['couleurs'] as $id) {
             if ($c = $colors->firstWhere('id', $id)) {

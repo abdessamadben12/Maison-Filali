@@ -115,10 +115,26 @@ php artisan optimize
 - Dans `.env` : `CACHE_STORE=file` (plus rapide que `database` sur un seul serveur).
 - `public/.htaccess` active la compression, le cache navigateur et la redirection vers `https://maisonfilali.ma` (sans www).
 
+### E-mails du formulaire de contact
+Chaque message de la page Contact est enregistré dans l'admin (« Messages ») **et** envoyé à l'adresse réglée dans
+**Admin → Paramètres** (par défaut `contact@maisonfilali.com`). Pour que l'e-mail parte vraiment, renseignez le
+serveur d'envoi (SMTP) de votre hébergeur dans `.env` :
+```
+MAIL_MAILER=smtp
+MAIL_HOST=mail.votre-hebergeur.com
+MAIL_PORT=465
+MAIL_SCHEME=smtps
+MAIL_USERNAME=contact@maisonfilali.com
+MAIL_PASSWORD=mot-de-passe-de-la-boite
+MAIL_FROM_ADDRESS="contact@maisonfilali.com"
+MAIL_FROM_NAME="Maison Filali"
+```
+Puis `php artisan config:clear`. Tant que `MAIL_MAILER=log`, les e-mails sont seulement écrits dans `storage/logs/laravel.log`.
+
 ## 6. SEO technique (déjà en place)
 
 - **Plan du site** : `/sitemap.xml` (produits avec photos, catégories, pages), mis à jour automatiquement. À déclarer dans Google Search Console.
-- **robots.txt** : `/robots.txt` généré par Laravel. Il bloque l'admin, l'espace client, la commande, et **tout le site tant que `APP_ENV` n'est pas `production`** (évite d'indexer une version de test).
+- **robots.txt** : `/robots.txt` généré par Laravel (ou le fichier `public/robots.txt` s'il existe, prioritaire). Il bloque l'admin, l'espace client et la commande. Pour un site de test, ajoutez `SHOP_NOINDEX=true` dans `.env` : tout le site est alors bloqué.
 - Chaque page a son titre, sa description, une URL canonique et l'aperçu de partage (Open Graph) ; les pages filtrées, de recherche, de compte et de commande sont en `noindex`.
 - Données structurées Google (JSON-LD) : boutique (ClothingStore), site + recherche, produits (prix MAD, stock, retours 7 jours), fil d'Ariane.
 - Page 404 personnalisée.
