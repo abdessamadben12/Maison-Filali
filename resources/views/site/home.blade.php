@@ -15,7 +15,7 @@
     <div class="content">
         <div class="kicker"><x-ico name="i-star" :s="16"/><span class="eyebrow">Maison Filali · Fait main</span></div>
         <h1><span class="ln"><span>L'élégance</span></span><span class="ln"><span>marocaine,</span></span><span class="ln"><span><em>cousue main</em></span></span></h1>
-        <p>Caftans, takchitas, djellabas et babouches faits main. Commandez en ligne, payez à la livraison, partout au Maroc.</p>
+        <p>Caftans, takchitas, djellabas et babouches faits main à Fès. Livraison au Maroc et à l'international, paiement à la livraison au Maroc.</p>
         <div class="ctas">
             <a class="btn btn-green" href="{{ route('catalogue') }}">Découvrir la collection</a>
             <a class="btn btn-outline" href="{{ route('page', 'notre-histoire') }}">Notre histoire</a>
@@ -34,9 +34,9 @@
 
 <section class="reassure d-only">
     <div class="wrap">
-        <div class="item"><x-ico name="i-hand" :s="44"/><div><strong>Fait main</strong><small>Par nos artisans à Casablanca</small></div></div>
+        <div class="item"><x-ico name="i-hand" :s="44"/><div><strong>Fait main</strong><small>Par nos artisans à Fès</small></div></div>
         <div class="item"><x-ico name="i-confirm" :s="44"/><div><strong>Commande confirmée</strong><small>Par notre équipe sous 24 h</small></div></div>
-        <div class="item"><x-ico name="i-truck" :s="44"/><div><strong>Livraison Maroc</strong><small>Paiement à la livraison</small></div></div>
+        <div class="item"><x-ico name="i-truck" :s="44"/><div><strong>Maroc &amp; international</strong><small>Paiement à la livraison au Maroc</small></div></div>
         <div class="item"><x-ico name="i-exchange" :s="44"/><div><strong>Échange 7 jours</strong><small>Après réception</small></div></div>
     </div>
 </section>
@@ -149,7 +149,7 @@
 <section class="maison-m m-only">
     <img src="{{ asset('images/logo-160.webp') }}" alt="Maison Filali" width="100" height="100" loading="lazy">
     <span class="eyebrow">Notre maison</span>
-    <h2>Des pièces <em>faites main</em>, livrées partout au Maroc</h2>
+    <h2>Des pièces <em>faites main</em> à Fès, livrées au Maroc et dans le monde</h2>
     <p class="ar" lang="ar" dir="rtl">الأناقة المغربية بلمسة يدوية</p>
     <a class="btn btn-outline btn-block" href="{{ route('page', 'notre-histoire') }}">Notre histoire</a>
 </section>

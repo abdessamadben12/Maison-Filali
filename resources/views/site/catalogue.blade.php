@@ -6,8 +6,8 @@
 @endphp
 @section('title', ($category ? $category->name.' faits main' : 'Boutique — caftans, takchitas, djellabas & babouches').($pageNo > 1 ? ' (page '.$pageNo.')' : '').' | Maison Filali')
 @section('description', \App\Support\Seo::description($category
-    ? ($category->description ?: $category->name.' faits main par Maison Filali.').' Livraison partout au Maroc, paiement à la livraison.'
-    : 'Toute la boutique Maison Filali : caftans, takchitas, djellabas et babouches faits main. Livraison partout au Maroc, paiement à la livraison.'))
+    ? ($category->description ?: $category->name.' faits main par Maison Filali.').' Livraison au Maroc et à l\'international.'
+    : 'Toute la boutique Maison Filali : caftans, takchitas, djellabas et babouches faits main à Fès. Livraison au Maroc et à l\'international.'))
 {{-- Pages filtrées / recherche : non indexées (évite le contenu dupliqué), liens suivis --}}
 @section('canonical', $isFiltered ? url()->current() : url()->current().($pageNo > 1 ? '?page='.$pageNo : ''))
 @if ($isFiltered)
@@ -40,7 +40,7 @@
             <p class="d-only">{{ $category->description }}</p>
         @else
             <h1>Notre <em class="italic-green">boutique</em></h1>
-            <p class="d-only">Caftans, takchitas, djellabas et babouches — toutes nos créations faites main, livrées partout au Maroc.</p>
+            <p class="d-only">Caftans, takchitas, djellabas et babouches — toutes nos créations faites main à Fès, livrées au Maroc et à l'international.</p>
         @endif
         <p class="m-only cat-count">{{ $products->total() }} création{{ $products->total() > 1 ? 's' : '' }} faite{{ $products->total() > 1 ? 's' : '' }} main</p>
     </div>

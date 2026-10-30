@@ -110,6 +110,13 @@
         }).catch(function () { location.href = more.href; });
     });
 
+    // Messages (« Vos informations sont enregistrées »…) : se ferment seuls après 6 s
+    document.querySelectorAll('.flash').forEach(function (f) {
+        var close = function () { f.classList.add('hide'); setTimeout(function () { f.remove(); }, 400); };
+        var b = f.querySelector('[data-flash-close]'); if (b) b.addEventListener('click', close);
+        if (f.classList.contains('flash-ok')) setTimeout(close, 6000);
+    });
+
     // Afficher / masquer un mot de passe
     document.querySelectorAll('[data-reveal]').forEach(function (btn) {
         btn.addEventListener('click', function () {

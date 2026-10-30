@@ -8,7 +8,7 @@
         // Les @section(…) sont déjà échappées : on décode avant de réafficher (évite « &amp;#039; »)
         $seo = fn (string $name, string $default) => html_entity_decode(trim($__env->yieldContent($name)), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?: $default;
         $seoTitle = $seo('title', 'Maison Filali — Caftans, takchitas & babouches faits main au Maroc');
-        $seoDesc = $seo('description', 'Maison Filali : vêtements traditionnels marocains faits main — caftans, takchitas, djellabas et babouches. Commandez en ligne, payez à la livraison partout au Maroc.');
+        $seoDesc = $seo('description', 'Maison Filali : vêtements traditionnels marocains faits main — caftans, takchitas, djellabas et babouches. Livraison au Maroc et à l\'international, paiement à la livraison au Maroc.');
         $seoCanonical = $seo('canonical', url()->current());
         $seoImage = $seo('og_image', asset('images/og-image.jpg'));
     @endphp
@@ -45,8 +45,8 @@
 </head>
 <body>
 <div class="topbar">
-    <span class="m-only">Paiement à la livraison · Tout le Maroc</span>
-    <span>Livraison partout au Maroc</span>
+    <span class="m-only">Livraison Maroc &amp; international</span>
+    <span>Livraison au Maroc et à l'international</span>
     <x-ico name="i-dot" :s="12"/>
     <span>Paiement à la livraison</span>
     <x-ico name="i-dot" :s="12"/>
@@ -98,10 +98,10 @@
 </div>
 
 @if (session('success'))
-    <div class="flash flash-ok">{{ session('success') }}</div>
+    <div class="flash flash-ok" role="status"><x-ico name="i-check-g" :s="18"/><span>{{ session('success') }}</span><button type="button" data-flash-close aria-label="Fermer">×</button></div>
 @endif
 @if (session('error'))
-    <div class="flash flash-err">{{ session('error') }}</div>
+    <div class="flash flash-err" role="alert"><span>{{ session('error') }}</span><button type="button" data-flash-close aria-label="Fermer">×</button></div>
 @endif
 
 @yield('content')
@@ -113,7 +113,7 @@
                 <img src="{{ asset('images/logo-160.webp') }}" alt="" width="64" height="64" loading="lazy">
                 <div><strong>MAISON FILALI</strong><small>Vêtements traditionnels</small></div>
             </div>
-            <p>Caftans, takchitas, djellabas et babouches faits main, livrés partout au Maroc. Commandez en ligne, payez à la livraison.</p>
+            <p>Caftans, takchitas, djellabas et babouches faits main à Fès, livrés au Maroc et à l'international. Au Maroc, vous payez à la livraison.</p>
             <div class="socials">
                 @if (config('shop.instagram_url'))<a href="{{ config('shop.instagram_url') }}" target="_blank" rel="noopener" aria-label="Instagram"><x-ico name="i-s-insta" :s="18"/></a>@endif
                 @if (config('shop.facebook_url'))<a href="{{ config('shop.facebook_url') }}" target="_blank" rel="noopener" aria-label="Facebook"><x-ico name="i-s-fb" :s="18"/></a>@endif

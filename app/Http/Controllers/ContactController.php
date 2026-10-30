@@ -20,7 +20,7 @@ class ContactController extends Controller
     {
         // Champ piège anti-robots : doit rester vide
         if (filled($request->input('website'))) {
-            return redirect()->route('contact')->with('success', 'Merci, votre message est bien envoyé.');
+            return redirect()->to(route('contact').'#formulaire')->with('contact_sent', '');
         }
 
         $request->merge(['phone' => normalize_phone($request->input('phone'))]);
@@ -44,6 +44,9 @@ class ContactController extends Controller
             }
         }
 
-        return redirect()->route('contact')->with('success', 'Merci '.explode(' ', $data['name'])[0].', votre message est bien envoyé. Nous vous répondons sous 24 h (Lun – Sam).');
+        // Prénom avec majuscule (« abdessamad » → « Abdessamad »)
+        $first = mb_convert_case(mb_strtolower(explode(' ', trim($data['name']))[0]), MB_CASE_TITLE);
+
+        return redirect()->to(route('contact').'#formulaire')->with('contact_sent', $first);
     }
 }

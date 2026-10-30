@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', $product->name.' | '.$product->category->name.' — Maison Filali')
-@section('description', \App\Support\Seo::description($product->tagline.' '.money($product->price).' — livraison partout au Maroc, paiement à la livraison.'))
+@section('description', \App\Support\Seo::description($product->tagline.' '.money($product->price).' — livraison au Maroc et à l\'international, paiement à la livraison au Maroc.'))
 @section('og_type', 'product')
 @section('og_image', $product->original_image_urls[0])
 @push('meta')
@@ -101,7 +101,7 @@
                 <button class="btn btn-green" type="button" id="orderBtn">Commander</button>
             </div>
             <p class="err" id="optErr" hidden></p>
-            <div class="m-cod m-only"><x-ico name="i-truck" :s="22"/><span>Paiement à la livraison · Livraison partout au Maroc</span></div>
+            <div class="m-cod m-only"><x-ico name="i-truck" :s="22"/><span>Paiement à la livraison au Maroc · Livraison aussi à l'international</span></div>
             <div class="ask d-only">Une question sur ce modèle ?
                 <a href="https://wa.me/{{ config('shop.whatsapp') }}?text={{ rawurlencode('Bonjour, une question sur « '.$product->name.' » : ') }}" target="_blank" rel="noopener"><x-ico name="i-wa-sm" :s="14"/>Écrivez-nous</a>
             </div>
@@ -126,7 +126,8 @@
             @endif
             <details class="acc">
                 <summary>Livraison &amp; retours <x-ico class="m" name="i-minus" :s="18"/><x-ico class="p" name="i-plus" :s="18"/></summary>
-                <div class="c">Livraison partout au Maroc en 24 à 72 h. Paiement en espèces à la livraison.
+                <div class="c">Maroc : livraison en 24 à 72 h, paiement en espèces à la livraison.
+Hors du Maroc : livraison internationale possible — tarif, délai et paiement sur demande par WhatsApp.
 Échange possible sous 7 jours après réception (article non porté, avec son emballage).</div>
             </details>
         </div>
@@ -223,6 +224,7 @@
         @endguest
         <div class="total"><span>Total · paiement à la livraison</span><b id="sumTotal">{{ money($product->price) }}</b></div>
         <button class="btn btn-green btn-block" type="submit">Valider ma commande</button>
+        <p class="intl-note">Vous êtes hors du Maroc ? <a href="https://wa.me/{{ config('shop.whatsapp') }}?text={{ rawurlencode('Bonjour, je souhaite commander « '.$product->name.' » avec une livraison hors du Maroc.') }}" target="_blank" rel="noopener">Commandez sur WhatsApp</a> pour le tarif et le délai de livraison.</p>
         <div class="note"><x-ico name="i-lock" :s="12" :h="16"/><span>Aucun paiement en ligne. Votre commande est enregistrée, notre équipe la confirme et vous suivez son statut sur le site.</span></div>
     </form>
 </div>

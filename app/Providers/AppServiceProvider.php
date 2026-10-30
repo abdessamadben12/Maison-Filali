@@ -22,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('fr');
 
+        // Hébergement sans « queue worker » : envoyer les e-mails immédiatement
+        if (! config('shop.queue_worker')) {
+            config(['queue.default' => 'sync']);
+        }
+
         // En ligne : toutes les URL (canonical, sitemap, partage) selon APP_URL (ex. https://maisonfilali.com)
         if ($this->app->isProduction()) {
             URL::forceRootUrl(config('app.url'));

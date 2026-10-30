@@ -1,0 +1,12 @@
+{
+    "Reset Password Notification": "Maison Filali — Nouveau mot de passe",
+    "You are receiving this email because we received a password reset request for your account.": "Vous recevez cet e-mail car une demande de nouveau mot de passe a été faite pour votre compte administrateur Maison Filali.",
+    "Reset Password": "Choisir un nouveau mot de passe",
+    "This password reset link will expire in :count minutes.": "Ce lien est valable :count minutes.",
+    "If you did not request a password reset, no further action is required.": "Si vous n’avez rien demandé, ignorez simplement cet e-mail : votre mot de passe ne change pas.",
+    "Whoops!": "Oups !",
+    "Hello!": "Bonjour,",
+    "Regards,": "Cordialement,",
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Si le bouton « :actionText » ne fonctionne pas, copiez ce lien dans votre navigateur :",
+    "All rights reserved.": "Tous droits réservés."
+}

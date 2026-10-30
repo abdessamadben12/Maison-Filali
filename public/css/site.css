@@ -77,9 +77,14 @@ input,select,textarea{font:inherit;color:inherit}
 .crumbs strong{font-weight:400;color:var(--ink)}
 
 /* Flash */
-.flash{max-width:1248px;margin:20px auto 0;padding:14px 18px;border-radius:2px;font-size:14px}
-.flash-ok{background:#e3f1e8;color:#1e7a45}
-.flash-err{background:#f8e3e3;color:#9b2c2c}
+.flash{position:fixed;z-index:90;top:120px;right:24px;max-width:min(420px,calc(100vw - 32px));display:flex;align-items:flex-start;gap:10px;padding:14px 14px 14px 16px;background:#fff;border-left:3px solid #1e7a45;box-shadow:0 18px 40px rgba(31,42,39,.16);font-size:14px;line-height:21px;animation:mf-toast .45s cubic-bezier(.16,1,.3,1) both;transition:opacity .35s,transform .35s}
+.flash span{flex:1}
+.flash .ico{margin-top:2px}
+.flash button{width:22px;height:22px;line-height:20px;font-size:20px;color:var(--muted)}
+.flash.hide{opacity:0;transform:translateX(24px)}
+.flash-ok{color:#1e5a3a}
+.flash-err{border-left-color:#9b2c2c;color:#9b2c2c}
+@keyframes mf-toast{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 
 /* Carte produit */
 .pcard{display:flex;flex-direction:column}
@@ -962,3 +967,22 @@ input,select,textarea{font:inherit;color:inherit}
   .contact-hero .txt{position:relative;top:auto;left:auto;right:auto;padding:22px 20px 26px;gap:8px}
   .contact-hero p{font-size:15px;line-height:23px}
 }
+
+/* Confirmation d'envoi du formulaire de contact */
+.contact-sent{align-items:center;text-align:center;gap:14px}
+.contact-sent .sent-ico{width:84px;height:84px;border-radius:42px 42px 0 0;border:1px solid var(--gold);background:#fff;display:grid;place-items:center;margin-bottom:4px}
+.contact-sent .h-section{font-size:40px}
+.contact-sent p{font-size:16px;line-height:26px;color:var(--muted);max-width:440px}
+.contact-sent p.small{font-size:14px}
+.contact-sent .sent-ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.contact-sent .link-gold{margin-top:6px;font-size:13px}
+@media (max-width:900px){
+  .flash{top:auto;bottom:16px;right:16px;left:16px;max-width:none}
+  .contact-sent .h-section{font-size:32px}
+  .contact-sent .sent-ctas{flex-direction:column;width:100%}
+}
+#formulaire{scroll-margin-top:120px}
+
+/* Commande hors Maroc */
+.intl-note{font-size:13px;line-height:20px;color:var(--muted);text-align:center}
+.intl-note a{color:var(--green);border-bottom:1px solid var(--gold)}

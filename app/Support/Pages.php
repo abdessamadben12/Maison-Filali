@@ -24,7 +24,7 @@ class Pages
             'notre-histoire' => [
                 'eyebrow' => 'Maison Filali',
                 'title' => 'Notre histoire',
-                'html' => '<p>Maison Filali propose des vêtements traditionnels marocains : caftans, takchitas, djellabas et babouches, faits main. Depuis plus d’un an, nos clientes nous retrouvent sur Instagram et WhatsApp ; ce site leur permet désormais de commander directement, partout au Maroc, avec paiement à la livraison.</p>
+                'html' => '<p>Maison Filali propose des vêtements traditionnels marocains : caftans, takchitas, djellabas et babouches, faits main. Depuis plus d’un an, nos clientes nous retrouvent sur Instagram et WhatsApp ; nos pièces sont faites main par nos artisans à Fès, et ce site permet de commander directement : livraison au Maroc et à l’international, paiement à la livraison au Maroc.</p>
 <h2>Nos créations</h2><p>Broderies, finitions sfifa et aakad, couleurs choisies avec soin : chaque pièce est pensée pour les fêtes comme pour le quotidien. La plupart de nos modèles peuvent aussi être réalisés sur mesure.</p>
 <p>[Histoire de la marque à compléter par Maison Filali]</p>
 <h2>Nous rendre visite</h2><p>'.nl2br(e(config('shop.address'))).'<br>'.e(config('shop.hours')).'<br>Téléphone / WhatsApp : '.$phone.'</p>',
@@ -48,6 +48,7 @@ class Pages
                 'eyebrow' => 'Aide',
                 'title' => 'Livraison & retours',
                 'html' => '<h2>Livraison</h2><p>Nous livrons partout au Maroc en 24 à 72 h après confirmation de la commande. Le paiement se fait en espèces à la livraison. Frais de livraison : [à compléter].</p>
+<h2>Livraison à l’international</h2><p>Nous livrons aussi hors du Maroc. Le tarif, le délai et le mode de paiement dépendent du pays : écrivez-nous sur WhatsApp au '.$phone.' avec le modèle souhaité et votre pays. [Pays desservis, tarifs et délais à compléter]</p>
 <h2>Échanges et retours</h2><p>Vous pouvez échanger ou retourner un article sous 7 jours après réception, s’il n’a pas été porté et qu’il est rendu dans son emballage d’origine. Les pièces réalisées sur mesure ne sont ni reprises ni échangées. [Conditions de remboursement à compléter]</p>
 <p>Pour demander un échange : '.$phone.' (téléphone ou WhatsApp).</p>',
             ],
@@ -68,7 +69,7 @@ class Pages
                 'title' => 'Conditions générales de vente',
                 'html' => '<h2>Commande</h2><p>Toute commande passée sur le site est enregistrée puis confirmée par Maison Filali, par téléphone ou via le site, sous réserve de disponibilité.</p>
 <h2>Prix et paiement</h2><p>Les prix sont indiqués en dirhams (DH) TTC. Le paiement s’effectue en espèces à la livraison.</p>
-<h2>Livraison</h2><p>Livraison partout au Maroc en 24 à 72 h après confirmation.</p>
+<h2>Livraison</h2><p>Maroc : livraison en 24 à 72 h après confirmation, paiement à la livraison. International : livraison sur demande, conditions communiquées avant l’expédition.</p>
 <h2>Échanges</h2><p>Échange possible sous 7 jours après réception, article non porté et dans son emballage. Les créations sur mesure ne sont pas échangeables.</p>
 <p>[Conditions complètes à valider par Maison Filali]</p>',
             ],

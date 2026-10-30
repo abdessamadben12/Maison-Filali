@@ -55,7 +55,7 @@ class Seo
             'url' => url('/'),
             'logo' => asset('images/logo.png'),
             'image' => asset('images/og-image.jpg'),
-            'description' => 'Vêtements traditionnels marocains faits main : caftans, takchitas, djellabas et babouches. Paiement à la livraison partout au Maroc.',
+            'description' => 'Vêtements traditionnels marocains faits main : caftans, takchitas, djellabas et babouches, faits main à Fès. Livraison au Maroc et à l\'international, paiement à la livraison au Maroc.',
             'telephone' => self::intlPhone(config('shop.phone')),
             'currenciesAccepted' => 'MAD',
             'paymentAccepted' => 'Paiement à la livraison (espèces)',
@@ -65,7 +65,7 @@ class Seo
                 'addressLocality' => 'Casablanca',
                 'addressCountry' => 'MA',
             ],
-            'areaServed' => ['@type' => 'Country', 'name' => 'Maroc'],
+            'areaServed' => [['@type' => 'Country', 'name' => 'Maroc'], ['@type' => 'Place', 'name' => 'International']],
             'hasMap' => config('shop.maps_url'),
             'sameAs' => self::sameAs(),
         ];

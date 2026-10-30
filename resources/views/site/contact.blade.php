@@ -38,7 +38,22 @@
             @include('partials.map', ['height' => 300])
         </div>
 
-        <form class="contact-form" method="post" action="{{ route('contact.send') }}" novalidate>
+        @if (session()->has('contact_sent'))
+            {{-- Confirmation à la place du formulaire --}}
+            <div class="contact-form contact-sent" id="formulaire" role="status">
+                <div class="sent-ico"><x-ico name="i-check-big" :s="40"/></div>
+                <span class="eyebrow">Message envoyé</span>
+                <h2 class="h-section">Merci{{ session('contact_sent') ? ' '.session('contact_sent') : '' }} !</h2>
+                <p>Votre message est bien arrivé chez Maison Filali. Nous vous répondons sous 24 h, du lundi au samedi, par téléphone ou par e-mail.</p>
+                <p class="small">Besoin d'une réponse plus rapide ? Écrivez-nous directement sur WhatsApp.</p>
+                <div class="sent-ctas">
+                    <a class="btn btn-green" href="https://wa.me/{{ config('shop.whatsapp') }}" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+                    <a class="btn btn-outline" href="{{ route('catalogue') }}">Voir la boutique</a>
+                </div>
+                <a class="link-gold" href="{{ route('contact') }}#formulaire">Envoyer un autre message</a>
+            </div>
+        @else
+        <form class="contact-form" id="formulaire" method="post" action="{{ route('contact.send') }}" novalidate>
             @csrf
             <div>
                 <span class="eyebrow">Formulaire</span>
@@ -80,6 +95,7 @@
             <button class="btn btn-green btn-block" type="submit">Envoyer le message</button>
             <p class="note"><span>Vos coordonnées servent uniquement à vous répondre. Pour une réponse immédiate, écrivez-nous sur WhatsApp.</span></p>
         </form>
+        @endif
     </div>
 </section>
 @endsection
