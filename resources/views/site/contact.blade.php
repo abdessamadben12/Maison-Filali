@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
-@section('title', 'Contact — Maison Filali')
-@section('description', 'Contactez Maison Filali : atelier & showroom à Casablanca, téléphone, WhatsApp et formulaire de contact.')
+@section('title', 'Contact — showroom à Casablanca, téléphone & WhatsApp | Maison Filali')
+@section('description', 'Contactez Maison Filali : showroom à Casablanca, téléphone, WhatsApp et formulaire. Caftans et babouches faits main, livraison au Maroc et à l\'international.')
 
 @push('head')
     {{ \App\Support\Seo::jsonLd(\App\Support\Seo::store()) }}

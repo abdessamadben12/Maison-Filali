@@ -3,16 +3,20 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Support\WhatsAppAlert;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -61,6 +65,15 @@ class Settings extends Page
             'tiktok_url' => config('shop.tiktok_url'),
             'maps_embed' => config('shop.maps_embed'),
             'maps_url' => config('shop.maps_url'),
+            'order_alerts' => self::allAlerts(),
+            'wa_phone_id' => config('shop.wa_phone_id'),
+            'wa_token' => config('shop.wa_token'),
+            'wa_template' => config('shop.wa_template'),
+            'wa_lang' => config('shop.wa_lang'),
+            'wa_client_template' => config('shop.wa_client_template'),
+            'google_verification' => config('shop.google_verification'),
+            'bing_verification' => config('shop.bing_verification'),
+            'shipping_fee' => config('shop.shipping_fee'),
         ]);
     }
 
@@ -89,6 +102,78 @@ class Settings extends Page
                         }),
                     TextInput::make('facebook_url')->label('Facebook')->url()->maxLength(255)->placeholder('https://www.facebook.com/…'),
                     TextInput::make('tiktok_url')->label('TikTok')->url()->maxLength(255)->placeholder('https://www.tiktok.com/@…'),
+                ]),
+
+            Section::make('Référencement (SEO)')->icon(Heroicon::OutlinedMagnifyingGlass)->columns(3)
+                ->description('Codes de vérification des moteurs de recherche et informations lues par Google.')
+                ->schema([
+                    TextInput::make('google_verification')->label('Google Search Console')->maxLength(300)
+                        ->placeholder('<meta name="google-site-verification" content="…">')
+                        ->helperText('Search Console → Ajouter une propriété → « Balise HTML » : collez la balise ou seulement le code.'),
+                    TextInput::make('bing_verification')->label('Bing Webmaster Tools')->maxLength(300)
+                        ->placeholder('<meta name="msvalidate.01" content="…">')
+                        ->helperText('Facultatif : Bing peut aussi importer le site depuis Search Console.'),
+                    TextInput::make('shipping_fee')->label('Frais de livraison au Maroc (DH)')->numeric()->minValue(0)->maxValue(1000)->placeholder('35')
+                        ->helperText('0 = livraison offerte. Affiché dans « Livraison & retours » et sur Google (fiches produits).'),
+                ]),
+
+            Section::make('WhatsApp (Meta for Developers)')->icon(Heroicon::OutlinedBellAlert)->collapsible()
+                ->description('À chaque nouvelle commande, l’API officielle WhatsApp Cloud envoie une alerte à l’équipe et, si vous le souhaitez, une confirmation au client.')
+                ->schema([
+                    Placeholder::make('wa_help')->hiddenLabel()->content(new HtmlString(
+                        '<div style="font-size:13px;line-height:1.65">'
+                        .'<b>1. Identifiants</b> — sur <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener" style="text-decoration:underline">developers.facebook.com</a> → votre application → <b>WhatsApp → Configuration de l’API</b> : copiez « Identifiant du numéro de téléphone ». '
+                        .'Pour le jeton, utilisez un <b>jeton permanent</b> (Business Settings → Utilisateurs système → Générer un jeton, autorisations <i>whatsapp_business_messaging</i> et <i>whatsapp_business_management</i>) : le jeton temporaire expire après 24 h.<br>'
+                        .'<b>2. Modèles</b> — dans <b>WhatsApp Manager → Modèles de message</b>, créez des modèles catégorie <b>Utilité</b>, langue <b>Français</b> :<br>'
+                        .'• <code>maison_filali_commande</code> (alerte équipe) : <span style="white-space:pre-line;display:block;margin:4px 0 6px 12px;padding:6px 10px;background:rgba(0,0,0,.04);border-radius:6px">'.e(WhatsAppAlert::TEAM_TEMPLATE_TEXT).'</span>'
+                        .'• <code>confirmation_commande</code> (client, facultatif) : <span style="display:block;margin:4px 0 6px 12px;padding:6px 10px;background:rgba(0,0,0,.04);border-radius:6px">'.e(WhatsAppAlert::CLIENT_TEMPLATE_TEXT).'</span>'
+                        .'<b>3. Tester</b> — en attendant l’approbation, mettez <code>hello_world</code> comme modèle et cliquez sur ✈️ à côté d’un numéro. En mode test, chaque numéro doit d’abord être ajouté dans la liste « À » de Meta.'
+                        .'</div>')),
+                    Grid::make(2)->schema([
+                        TextInput::make('wa_phone_id')->label('Identifiant du numéro (Phone number ID)')->maxLength(40)->placeholder('123456789012345')
+                            ->rule('nullable')->regex('/^\d{5,25}$/')->validationMessages(['regex' => 'L’identifiant ne contient que des chiffres (ce n’est pas le numéro de téléphone).']),
+                        TextInput::make('wa_token')->label('Jeton d’accès (Access token)')->password()->revealable()->maxLength(600)->placeholder('EAAG…'),
+                        TextInput::make('wa_template')->label('Modèle « alerte équipe »')->maxLength(100)->placeholder('maison_filali_commande')
+                            ->helperText('6 variables : n° · articles · total · client · téléphone · ville.'),
+                        TextInput::make('wa_lang')->label('Langue des modèles')->maxLength(10)->placeholder('fr')
+                            ->helperText('Code de langue choisi dans Meta : fr, ar, en_US…'),
+                        TextInput::make('wa_client_template')->label('Modèle « confirmation client » (facultatif)')->maxLength(100)->placeholder('confirmation_commande')
+                            ->helperText('Laissez vide pour ne rien envoyer au client. 3 variables : prénom · n° · total.'),
+                    ]),
+                    Repeater::make('order_alerts')->label('Numéros de l’équipe qui reçoivent l’alerte')->defaultItems(0)->maxItems(10)->columns(3)
+                        ->addActionLabel('Ajouter un numéro')
+                        ->itemLabel(fn (array $state) => trim(($state['name'] ?? '') ?: ($state['phone'] ?? '')) ?: 'Nouveau numéro')
+                        ->extraItemActions([
+                            Action::make('testAlert')->icon(Heroicon::OutlinedPaperAirplane)->tooltip('Envoyer un message de test')
+                                ->action(function (array $arguments, Repeater $component) {
+                                    $item = $component->getRawItemState($arguments['item']);
+                                    if (blank($item['phone'] ?? null)) {
+                                        Notification::make()->title('Indiquez le numéro')->warning()->send();
+
+                                        return;
+                                    }
+                                    // Utilise les valeurs du formulaire, même pas encore enregistrées
+                                    config([
+                                        'shop.wa_phone_id' => trim((string) ($this->data['wa_phone_id'] ?? '')),
+                                        'shop.wa_token' => trim((string) ($this->data['wa_token'] ?? '')),
+                                        'shop.wa_lang' => trim((string) ($this->data['wa_lang'] ?? '')),
+                                    ]);
+                                    $template = trim((string) ($this->data['wa_template'] ?? '')) ?: 'maison_filali_commande';
+                                    try {
+                                        $error = WhatsAppAlert::sendTemplate((string) $item['phone'], $template, WhatsAppAlert::sampleTeamParams());
+                                    } catch (\Throwable $e) {
+                                        $error = 'Erreur inattendue : '.$e->getMessage();
+                                    }
+                                    $error
+                                        ? Notification::make()->title('Message non envoyé')->body($error)->danger()->persistent()->send()
+                                        : Notification::make()->title('Message accepté par Meta')->body('Modèle « '.$template.' » envoyé à '.$item['phone'].'. Vérifiez WhatsApp.')->success()->send();
+                                }),
+                        ])
+                        ->schema([
+                            TextInput::make('name')->label('Nom')->maxLength(40)->placeholder('Gérant'),
+                            TextInput::make('phone')->label('Numéro WhatsApp')->required()->tel()->maxLength(20)->placeholder('06 78 20 88 68 ou +33 6…'),
+                            Toggle::make('active')->label('Actif')->default(true)->inline(false),
+                        ]),
                 ]),
 
             Section::make('Localisation Google Maps')->icon(Heroicon::OutlinedMapPin)->schema([
@@ -149,12 +234,34 @@ class Settings extends Page
             'tiktok_url' => $d['tiktok_url'] ?: null,
             'maps_embed' => $embed,
             'maps_url' => $d['maps_url'] ?: (Setting::mapsLinkFromEmbed($embed) ?? config('shop.maps_url')),
+            'order_alerts' => ($alerts = collect($d['order_alerts'] ?? [])->map(fn ($r) => [
+                'name' => trim((string) ($r['name'] ?? '')) ?: null,
+                'phone' => trim((string) $r['phone']),
+                'active' => (bool) ($r['active'] ?? true),
+            ])->values()->all()) ? json_encode($alerts, JSON_UNESCAPED_UNICODE) : null,
+            'wa_phone_id' => trim((string) ($d['wa_phone_id'] ?? '')) ?: null,
+            'wa_token' => trim((string) ($d['wa_token'] ?? '')) ?: null,
+            'wa_template' => trim((string) ($d['wa_template'] ?? '')) ?: null,
+            'wa_lang' => trim((string) ($d['wa_lang'] ?? '')) ?: null,
+            'wa_client_template' => trim((string) ($d['wa_client_template'] ?? '')) ?: null,
+            'google_verification' => trim((string) ($d['google_verification'] ?? '')) ?: null,
+            'bing_verification' => trim((string) ($d['bing_verification'] ?? '')) ?: null,
+            'shipping_fee' => ($d['shipping_fee'] ?? '') === '' || $d['shipping_fee'] === null ? null : (string) (0 + $d['shipping_fee']),
         ]);
 
         Setting::applyToConfig();
         $this->mount();
 
         Notification::make()->title('Paramètres enregistrés')->body('Le site est à jour.')->success()->send();
+    }
+
+    /** Tous les destinataires enregistrés (y compris ceux mis en pause). */
+    private static function allAlerts(): array
+    {
+        $list = config('shop.order_alerts');
+        $list = is_string($list) ? json_decode($list, true) : $list;
+
+        return is_array($list) ? array_values($list) : [];
     }
 
     /** « @compte », « compte » ou un lien instagram.com/compte → « compte ». */

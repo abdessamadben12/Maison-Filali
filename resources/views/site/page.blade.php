@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
-@section('title', $page['title'].' — Maison Filali')
-@section('description', \App\Support\Seo::description($page['html']))
+@section('title', ($page['seo_title'] ?? $page['title'].' — Maison Filali'))
+@section('description', $page['description'] ?? \App\Support\Seo::description($page['html']))
 @push('head')
     {{ \App\Support\Seo::jsonLd(\App\Support\Seo::breadcrumb([['Accueil', route('home')], [$page['title'], url()->current()]])) }}
 @endpush

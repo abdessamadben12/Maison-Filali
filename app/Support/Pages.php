@@ -24,6 +24,8 @@ class Pages
             'notre-histoire' => [
                 'eyebrow' => 'Maison Filali',
                 'title' => 'Notre histoire',
+                'seo_title' => 'Notre histoire — caftans faits main à Fès | Maison Filali',
+                'description' => 'Maison Filali : caftans, takchitas, djellabas et babouches faits main par nos artisans à Fès. Showroom à Casablanca, livraison au Maroc et à l’international.',
                 'html' => '<p>Maison Filali propose des vêtements traditionnels marocains : caftans, takchitas, djellabas et babouches, faits main. Depuis plus d’un an, nos clientes nous retrouvent sur Instagram et WhatsApp ; nos pièces sont faites main par nos artisans à Fès, et ce site permet de commander directement : livraison au Maroc et à l’international, paiement à la livraison au Maroc.</p>
 <h2>Nos créations</h2><p>Broderies, finitions sfifa et aakad, couleurs choisies avec soin : chaque pièce est pensée pour les fêtes comme pour le quotidien. La plupart de nos modèles peuvent aussi être réalisés sur mesure.</p>
 <p>[Histoire de la marque à compléter par Maison Filali]</p>
@@ -32,6 +34,7 @@ class Pages
             'comment-commander' => [
                 'eyebrow' => 'Aide',
                 'title' => 'Comment commander',
+                'description' => 'Commander chez Maison Filali en 4 étapes : choisissez votre modèle, laissez vos coordonnées, notre équipe confirme sous 24 h, vous payez à la livraison.',
                 'html' => '<ul>
 <li><strong>Choisissez</strong> votre modèle, la couleur et la taille sur la page produit, puis cliquez sur « Commander ».</li>
 <li><strong>Indiquez vos coordonnées</strong> : nom, téléphone et ville. Aucun compte n’est nécessaire.</li>
@@ -42,12 +45,15 @@ class Pages
             'guide-des-tailles' => [
                 'eyebrow' => 'Aide',
                 'title' => 'Guide des tailles',
+                'seo_title' => 'Guide des tailles — caftans, djellabas & babouches | Maison Filali',
+                'description' => 'Trouvez votre taille de caftan, takchita, djellaba ou babouches : tableau des mesures Maison Filali. Toutes nos pièces existent aussi sur mesure.',
                 'html' => self::sizeGuide(),
             ],
             'livraison-retours' => [
                 'eyebrow' => 'Aide',
                 'title' => 'Livraison & retours',
-                'html' => '<h2>Livraison</h2><p>Nous livrons partout au Maroc en 24 à 72 h après confirmation de la commande. Le paiement se fait en espèces à la livraison. Frais de livraison : [à compléter].</p>
+                'description' => 'Livraison partout au Maroc en 24 à 72 h, paiement à la livraison, et livraison à l’international. Échange ou retour possible sous 7 jours.',
+                'html' => '<h2>Livraison</h2><p>Nous livrons partout au Maroc en 24 à 72 h après confirmation de la commande. Le paiement se fait en espèces à la livraison. Frais de livraison : '.(is_numeric(config('shop.shipping_fee')) ? ((float) config('shop.shipping_fee') > 0 ? money(config('shop.shipping_fee')) : 'offerts') : '[à compléter]').'.</p>
 <h2>Livraison à l’international</h2><p>Nous livrons aussi hors du Maroc. Le tarif, le délai et le mode de paiement dépendent du pays : écrivez-nous sur WhatsApp au '.$phone.' avec le modèle souhaité et votre pays. [Pays desservis, tarifs et délais à compléter]</p>
 <h2>Échanges et retours</h2><p>Vous pouvez échanger ou retourner un article sous 7 jours après réception, s’il n’a pas été porté et qu’il est rendu dans son emballage d’origine. Les pièces réalisées sur mesure ne sont ni reprises ni échangées. [Conditions de remboursement à compléter]</p>
 <p>Pour demander un échange : '.$phone.' (téléphone ou WhatsApp).</p>',
@@ -55,18 +61,21 @@ class Pages
             'mentions-legales' => [
                 'eyebrow' => 'Informations',
                 'title' => 'Mentions légales',
+                'description' => 'Mentions légales du site maisonfilali.com : éditeur, coordonnées et hébergement.',
                 'html' => '<p><strong>Éditeur du site :</strong> Maison Filali — [raison sociale, forme juridique et capital à compléter]<br>Adresse : '.nl2br(e(config('shop.address'))).'<br>RC : [à compléter] · ICE : [à compléter] · IF : [à compléter]<br>Téléphone : '.$phone.'</p>
 <p><strong>Hébergement :</strong> [nom et adresse de l’hébergeur à compléter]</p>',
             ],
             'confidentialite' => [
                 'eyebrow' => 'Informations',
                 'title' => 'Confidentialité',
+                'description' => 'Comment Maison Filali utilise vos données (nom, téléphone, adresse) : uniquement pour traiter et livrer votre commande, conformément à la loi 09-08.',
                 'html' => '<p>Les informations que vous donnez lors d’une commande (nom, téléphone, ville, adresse, e-mail si vous créez un compte) servent uniquement à traiter et livrer votre commande. Elles ne sont ni vendues ni partagées, sauf avec le livreur pour la livraison.</p>
 <p>Conformément à la loi 09-08, vous pouvez demander l’accès, la rectification ou la suppression de vos données en nous contactant au '.$phone.'. [Numéro de déclaration CNDP à compléter]</p>',
             ],
             'cgv' => [
                 'eyebrow' => 'Informations',
                 'title' => 'Conditions générales de vente',
+                'description' => 'Conditions générales de vente Maison Filali : commande, prix en dirhams, paiement à la livraison, délais de livraison et échanges.',
                 'html' => '<h2>Commande</h2><p>Toute commande passée sur le site est enregistrée puis confirmée par Maison Filali, par téléphone ou via le site, sous réserve de disponibilité.</p>
 <h2>Prix et paiement</h2><p>Les prix sont indiqués en dirhams (DH) TTC. Le paiement s’effectue en espèces à la livraison.</p>
 <h2>Livraison</h2><p>Maroc : livraison en 24 à 72 h après confirmation, paiement à la livraison. International : livraison sur demande, conditions communiquées avant l’expédition.</p>

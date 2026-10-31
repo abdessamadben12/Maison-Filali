@@ -44,12 +44,16 @@ class Product extends Model
         // Le plan du site (sitemap.xml) est régénéré après chaque modification de produit
         static::saved(function (Product $p) {
             Cache::store('file')->forget('sitemap.v2');
+            Cache::store('file')->forget('seo.price_range');
             // Créer les versions WebP légères des photos
             foreach ($p->images ?? [] as $path) {
                 Img::optimize($path);
             }
         });
-        static::deleted(fn () => Cache::store('file')->forget('sitemap.v2'));
+        static::deleted(function () {
+            Cache::store('file')->forget('sitemap.v2');
+            Cache::store('file')->forget('seo.price_range');
+        });
     }
 
     public function getRouteKeyName(): string

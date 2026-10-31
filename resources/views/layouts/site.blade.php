@@ -8,14 +8,23 @@
         // Les @section(…) sont déjà échappées : on décode avant de réafficher (évite « &amp;#039; »)
         $seo = fn (string $name, string $default) => html_entity_decode(trim($__env->yieldContent($name)), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?: $default;
         $seoTitle = $seo('title', 'Maison Filali — Caftans, takchitas & babouches faits main au Maroc');
-        $seoDesc = $seo('description', 'Maison Filali : vêtements traditionnels marocains faits main — caftans, takchitas, djellabas et babouches. Livraison au Maroc et à l\'international, paiement à la livraison au Maroc.');
+        $seoDesc = $seo('description', 'Caftans, takchitas, djellabas et babouches faits main à Fès par Maison Filali. Livraison au Maroc et à l\'international, paiement à la livraison.');
         $seoCanonical = $seo('canonical', url()->current());
         $seoImage = $seo('og_image', asset('images/og-image.jpg'));
+        $seoRobots = $seo('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+        $seoIndexable = ! str_contains($seoRobots, 'noindex');
+        $seoVerify = fn ($v) => preg_match('/content\s*=\s*["\']([^"\']+)/i', (string) $v, $m) ? $m[1] : trim((string) $v);
     @endphp
     <title>{{ $seoTitle }}</title>
     <meta name="description" content="{{ $seoDesc }}">
-    <meta name="robots" content="@yield('robots', 'index, follow, max-image-preview:large')">
-    <link rel="canonical" href="{{ $seoCanonical }}">
+    <meta name="robots" content="{{ $seoRobots }}">
+    @if ($seoIndexable)
+        <link rel="canonical" href="{{ $seoCanonical }}">
+        <link rel="alternate" hreflang="fr-MA" href="{{ $seoCanonical }}">
+        <link rel="alternate" hreflang="x-default" href="{{ $seoCanonical }}">
+    @endif
+    @if ($code = $seoVerify(config('shop.google_verification')))<meta name="google-site-verification" content="{{ $code }}">@endif
+    @if ($code = $seoVerify(config('shop.bing_verification')))<meta name="msvalidate.01" content="{{ $code }}">@endif
 
     {{-- Partage sur les réseaux sociaux (WhatsApp, Facebook, Instagram…) --}}
     <meta property="og:site_name" content="Maison Filali">
@@ -25,13 +34,24 @@
     <meta property="og:description" content="{{ $seoDesc }}">
     <meta property="og:url" content="{{ $seoCanonical }}">
     <meta property="og:image" content="{{ $seoImage }}">
+    @if ($seoImage === asset('images/og-image.jpg'))
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+    @endif
+    <meta property="og:image:alt" content="{{ $seoTitle }}">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDesc }}">
+    <meta name="twitter:image" content="{{ $seoImage }}">
     @stack('meta')
 
     <meta name="theme-color" content="#0f4a3e">
-    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
-    <link rel="icon" href="{{ asset('images/favicon-48.png') }}" type="image/png" sizes="48x48">
-    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
+    {{-- Icône affichée par Google dans les résultats (multiple de 48 px) et sur mobile --}}
+    <link rel="icon" href="{{ url('favicon.ico') }}" sizes="48x48">
+    <link rel="icon" href="{{ asset('images/icon-96.png') }}" type="image/png" sizes="96x96">
+    <link rel="icon" href="{{ asset('images/icon-192.png') }}" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}" sizes="180x180">
+    <link rel="manifest" href="{{ url('site.webmanifest') }}">
     <link rel="sitemap" type="application/xml" href="{{ url('sitemap.xml') }}">
 
     {{-- Polices principales préchargées (hébergées sur le site) --}}

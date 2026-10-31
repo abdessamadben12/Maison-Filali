@@ -4,7 +4,7 @@
     $isFiltered = request()->hasAny(['q', 'categories', 'couleurs', 'tailles', 'prix_min', 'prix_max', 'stock', 'sur_mesure', 'tri']);
     $pageNo = $products->currentPage();
 @endphp
-@section('title', ($category ? $category->name.' faits main' : 'Boutique — caftans, takchitas, djellabas & babouches').($pageNo > 1 ? ' (page '.$pageNo.')' : '').' | Maison Filali')
+@section('title', ($category ? $category->name.' faits main — achat en ligne au Maroc' : 'Boutique — caftans, takchitas, djellabas & babouches').($pageNo > 1 ? ' (page '.$pageNo.')' : '').' | Maison Filali')
 @section('description', \App\Support\Seo::description($category
     ? ($category->description ?: $category->name.' faits main par Maison Filali.').' Livraison au Maroc et à l\'international.'
     : 'Toute la boutique Maison Filali : caftans, takchitas, djellabas et babouches faits main à Fès. Livraison au Maroc et à l\'international.'))
@@ -19,6 +19,13 @@
         ['Boutique', route('catalogue')],
         $category ? [$category->name, route('category', $category)] : null,
     ]))) }}
+    @unless ($isFiltered)
+        {{ \App\Support\Seo::jsonLd(\App\Support\Seo::collection(
+            $category ? $category->name.' — Maison Filali' : 'Boutique Maison Filali',
+            $category ? \App\Support\Seo::description($category->description ?: $category->name.' faits main par Maison Filali.') : 'Caftans, takchitas, djellabas et babouches faits main à Fès.',
+            $products
+        )) }}
+    @endunless
 @endpush
 
 @section('content')

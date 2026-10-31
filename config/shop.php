@@ -7,6 +7,20 @@ return [
     // Adresse qui reçoit les messages du formulaire de contact
     'contact_email' => env('SHOP_CONTACT_EMAIL', 'contact@maisonfilali.com'),
     'whatsapp' => env('SHOP_WHATSAPP', '212678208868'),
+
+    // WhatsApp Cloud API (Meta for Developers) — réglé dans Admin → Paramètres → « WhatsApp (Meta) »
+    'order_alerts' => null,                                   // numéros de l'équipe (JSON)
+    'wa_phone_id' => env('WHATSAPP_PHONE_ID'),                // « Identifiant du numéro de téléphone »
+    'wa_token' => env('WHATSAPP_TOKEN'),                      // jeton d'accès permanent
+    'wa_template' => env('WHATSAPP_TEMPLATE', 'maison_filali_commande'),
+    'wa_client_template' => env('WHATSAPP_CLIENT_TEMPLATE'),  // vide = pas de message au client
+    'wa_lang' => env('WHATSAPP_LANG', 'fr'),
+    'wa_api_version' => env('WHATSAPP_API_VERSION', 'v23.0'),
+
+    // SEO (Admin → Paramètres → Référencement)
+    'google_verification' => env('GOOGLE_SITE_VERIFICATION'),   // balise Google Search Console
+    'bing_verification' => env('BING_SITE_VERIFICATION'),       // balise Bing Webmaster Tools
+    'shipping_fee' => env('SHOP_SHIPPING_FEE'),                 // frais de livraison Maroc en DH (0 = offerte)
     'instagram' => '@la_maison_filalii',
     'instagram_url' => 'https://www.instagram.com/la_maison_filalii/',
     // Laisser vide (null) pour masquer l'icône sur le site

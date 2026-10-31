@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Support\WhatsAppAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,6 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate(['phone' => ['nullable', 'string', 'max:64']]);
         $request->merge(['phone' => normalize_phone($request->input('phone'))]);
 
         $data = $request->validate([
@@ -31,7 +31,7 @@ class OrderController extends Controller
             'address' => ['nullable', 'string', 'max:190'],
             'create_account' => ['nullable', 'boolean'],
             'email' => ['exclude_unless:create_account,1', 'nullable', 'required_if:create_account,1', 'email', 'max:190', Rule::unique('users', 'email')],
-            'password' => ['exclude_unless:create_account,1', 'nullable', 'required_if:create_account,1', 'string', 'min:8', 'max:255'],
+            'password' => ['exclude_unless:create_account,1', 'nullable', 'required_if:create_account,1', 'string', 'min:8'],
         ], [
             'phone.regex' => 'Entrez un numéro marocain valide (ex. 06 12 34 56 78).',
             'email.unique' => 'Un compte existe déjà avec cet e-mail : connectez-vous d’abord.',
@@ -39,12 +39,12 @@ class OrderController extends Controller
             'password.required_if' => 'Choisissez un mot de passe pour créer un compte.',
         ]);
 
-        $product = Product::active()->with('variants.color', 'variants.size')->findOrFail($data['product_id']);
+        $product = Product::with('variants.color', 'variants.size')->findOrFail($data['product_id']);
         $custom = (bool) ($data['custom'] ?? false) && $product->is_custom_possible;
         $variant = null;
 
         if (! $custom) {
-            $variant = ! empty($data['variant_id']) ? $product->variants->firstWhere('id', (int) $data['variant_id']) : null;
+            $variant = $data['variant_id'] ? $product->variants->firstWhere('id', (int) $data['variant_id']) : null;
             if (! $variant && $product->variants->count() === 1) {
                 $variant = $product->variants->first();
             }
@@ -58,15 +58,14 @@ class OrderController extends Controller
             }
         }
 
-        [$order, $newUser] = DB::transaction(function () use ($data, $product, $variant, $custom) {
+        $order = DB::transaction(function () use ($data, $product, $variant, $custom) {
             $user = Auth::user();
-            $newUser = null;
             if (! $user && ! empty($data['create_account'])) {
                 $user = User::create([
                     'name' => $data['name'], 'email' => $data['email'], 'phone' => $data['phone'],
                     'city' => $data['city'], 'address' => $data['address'] ?? null, 'password' => $data['password'],
                 ]);
-                $newUser = $user;
+                Auth::login($user, true);
             }
             if ($user?->is_admin) {
                 $user = null; // une commande test passée depuis le compte admin reste « sans compte »
@@ -105,16 +104,17 @@ class OrderController extends Controller
                 'total' => $product->price * $data['quantity'],
             ]);
 
-            return [$order, $newUser];
-        }, 3);
-
-        // Do not authenticate a user whose transaction has been rolled back.
-        if ($newUser) {
-            Auth::login($newUser, true);
-            $request->session()->regenerate();
-        }
+            return $order;
+        });
 
         session()->push('my_orders', $order->id);
+
+        // Message WhatsApp au gérant / à l'équipe (envoyé après l'affichage de la page au client)
+        try {
+            WhatsAppAlert::newOrder($order);
+        } catch (\Throwable $e) {
+            report($e); // la commande est enregistrée quoi qu'il arrive
+        }
 
         return redirect()->route('order.thanks', $order);
     }

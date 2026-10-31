@@ -11,14 +11,35 @@ class Seo
 {
     public static function jsonLd(array $data): HtmlString
     {
-        $json = json_encode(array_filter($data, fn ($v) => $v !== null && $v !== []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
+        $json = json_encode(self::prune($data), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 
         return new HtmlString('<script type="application/ld+json">'.$json.'</script>');
     }
 
+    /** Retire les valeurs vides à tous les niveaux (Google signale les champs null). */
+    private static function prune(array $data): array
+    {
+        $isList = array_is_list($data);
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $v = self::prune($v);
+            }
+            if ($v === null || $v === [] || $v === '') {
+                unset($data[$k]);
+            } else {
+                $data[$k] = $v;
+            }
+        }
+
+        return $isList ? array_values($data) : $data;
+    }
+
     public static function description(?string $text, int $limit = 158): string
     {
-        return Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) $text))), $limit, '…');
+        // Espace avant chaque balise : « <h2>Livraison</h2><p>Nous… » → « Livraison Nous… »
+        $text = html_entity_decode(strip_tags(str_replace('<', ' <', (string) $text)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return Str::limit(trim(preg_replace('/\s+/u', ' ', str_replace(['[', ']'], '', $text))), $limit, '…');
     }
 
     /** 06 78 20 88 68 → +212678208868 */
@@ -53,10 +74,22 @@ class Seo
             '@id' => url('/').'/#boutique',
             'name' => config('shop.name'),
             'url' => url('/'),
-            'logo' => asset('images/logo.png'),
+            'alternateName' => ['La Maison Filali', 'maisonfilali.com'],
+            'logo' => ['@type' => 'ImageObject', 'url' => asset('images/logo.png'), 'width' => 400, 'height' => 400],
             'image' => asset('images/og-image.jpg'),
             'description' => 'Vêtements traditionnels marocains faits main : caftans, takchitas, djellabas et babouches, faits main à Fès. Livraison au Maroc et à l\'international, paiement à la livraison au Maroc.',
             'telephone' => self::intlPhone(config('shop.phone')),
+            'email' => config('shop.contact_email'),
+            'priceRange' => self::priceRange(),
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'contactType' => 'customer service',
+                'telephone' => self::intlPhone(config('shop.whatsapp') ?: config('shop.phone')),
+                'email' => config('shop.contact_email'),
+                'availableLanguage' => ['French', 'Arabic'],
+                'areaServed' => 'MA',
+            ],
+            'hasMerchantReturnPolicy' => self::returnPolicy(),
             'currenciesAccepted' => 'MAD',
             'paymentAccepted' => 'Paiement à la livraison (espèces)',
             'address' => [
@@ -78,7 +111,8 @@ class Seo
             '@type' => 'WebSite',
             '@id' => url('/').'/#site',
             'name' => config('shop.name'),
-            'url' => url('/'),
+            'alternateName' => ['La Maison Filali', 'maisonfilali.com'],
+            'url' => url('/').'/',
             'inLanguage' => 'fr-MA',
             'publisher' => ['@id' => url('/').'/#boutique'],
             'potentialAction' => [
@@ -120,14 +154,76 @@ class Seo
                 'priceCurrency' => 'MAD',
                 'availability' => $product->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 'itemCondition' => 'https://schema.org/NewCondition',
-                'seller' => ['@id' => url('/').'/#boutique'],
-                'hasMerchantReturnPolicy' => [
-                    '@type' => 'MerchantReturnPolicy',
-                    'applicableCountry' => 'MA',
-                    'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
-                    'merchantReturnDays' => 7,
-                ],
+                'seller' => ['@type' => 'Organization', '@id' => url('/').'/#boutique', 'name' => config('shop.name')],
+                'hasMerchantReturnPolicy' => self::returnPolicy(),
+                'shippingDetails' => self::shipping(),
             ],
+        ];
+    }
+
+    /** Échange / retour sous 7 jours (page « Livraison & retours »). */
+    public static function returnPolicy(): array
+    {
+        return [
+            '@type' => 'MerchantReturnPolicy',
+            'applicableCountry' => 'MA',
+            'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            'merchantReturnDays' => 7,
+            'returnMethod' => 'https://schema.org/ReturnByMail',
+            'returnFees' => 'https://schema.org/ReturnShippingFees',
+            'merchantReturnLink' => route('page', 'livraison-retours'),
+        ];
+    }
+
+    /** Livraison au Maroc en 24–72 h. Publié seulement si les frais sont renseignés (Admin → Paramètres → SEO). */
+    public static function shipping(): ?array
+    {
+        $fee = config('shop.shipping_fee');
+        if ($fee === null || $fee === '' || ! is_numeric($fee)) {
+            return null;
+        }
+
+        return [
+            '@type' => 'OfferShippingDetails',
+            'shippingRate' => ['@type' => 'MonetaryAmount', 'value' => (string) (0 + $fee), 'currency' => 'MAD'],
+            'shippingDestination' => ['@type' => 'DefinedRegion', 'addressCountry' => 'MA'],
+            'deliveryTime' => [
+                '@type' => 'ShippingDeliveryTime',
+                'handlingTime' => ['@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY'],
+                'transitTime' => ['@type' => 'QuantitativeValue', 'minValue' => 1, 'maxValue' => 3, 'unitCode' => 'DAY'],
+            ],
+        ];
+    }
+
+    /** « 280 DH – 4 500 DH » d'après les prix du catalogue (mis en cache). */
+    public static function priceRange(): ?string
+    {
+        try {
+            [$min, $max] = \Illuminate\Support\Facades\Cache::store('file')->remember('seo.price_range', 3600, fn () => [Product::active()->min('price'), Product::active()->max('price')]);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $min ? money($min).($max > $min ? ' – '.money($max) : '') : null;
+    }
+
+    /** Liste des produits d'une page catégorie / boutique (CollectionPage + ItemList). */
+    public static function collection(string $name, string $description, iterable $products): array
+    {
+        $items = [];
+        $i = 0;
+        foreach ($products as $p) {
+            $items[] = ['@type' => 'ListItem', 'position' => ++$i, 'url' => route('product', $p), 'name' => $p->name];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'description' => $description,
+            'url' => url()->current(),
+            'isPartOf' => ['@id' => url('/').'/#site'],
+            'mainEntity' => ['@type' => 'ItemList', 'numberOfItems' => $i, 'itemListElement' => $items],
         ];
     }
 }

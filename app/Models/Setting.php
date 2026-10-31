@@ -24,6 +24,8 @@ class Setting extends Model
     public const KEYS = [
         'phone', 'contact_email', 'whatsapp', 'hours', 'hours_short', 'address', 'address_short',
         'instagram', 'instagram_url', 'facebook_url', 'tiktok_url', 'maps_embed', 'maps_url',
+        'order_alerts', 'wa_phone_id', 'wa_token', 'wa_template', 'wa_lang', 'wa_client_template',
+        'google_verification', 'bing_verification', 'shipping_fee',
     ];
 
     /** Charge les paramètres enregistrés dans config('shop.*'). */
