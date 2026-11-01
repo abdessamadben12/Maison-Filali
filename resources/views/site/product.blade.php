@@ -77,7 +77,6 @@
             <div class="opt">
                 <div class="lbl">
                     <span>{{ $sizes->first()?->type === 'pointure' ? 'Pointure' : 'Taille' }} : <b id="sizeName">—</b></span>
-                    <a class="guide" href="{{ route('page', 'guide-des-tailles') }}" target="_blank"><x-ico name="i-ruler" :s="15"/>Guide des tailles</a>
                 </div>
                 <div class="sizes">
                     @foreach ($sizes as $s)

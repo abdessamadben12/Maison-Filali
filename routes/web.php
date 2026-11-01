@@ -21,6 +21,7 @@ Route::get('/collection/{category}', [ShopController::class, 'catalogue'])->name
 Route::get('/produit/{product}', [ShopController::class, 'product'])->name('product');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
+Route::permanentRedirect('/maison/guide-des-tailles', '/boutique'); // page supprimée
 Route::get('/maison/{slug}', [ShopController::class, 'page'])->name('page');
 
 Route::post('/commande', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('order.store');

@@ -13,11 +13,11 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
@@ -89,33 +89,24 @@ class ProductResource extends Resource
                             ->helperText('La première photo est la photo principale. Glissez pour changer l’ordre. JPG, PNG ou WebP : les photos sont converties automatiquement en WebP, sans perte de qualité.'),
                     ]),
                     Section::make('Couleurs, tailles & stock')
-                        ->description('Une ligne par combinaison couleur / taille. Laissez la couleur ou la taille vide si le produit n’en a pas. Astuce : « Couleur + intervalle de tailles » crée toutes les tailles d’une couleur en une fois.')
-                        ->headerActions([self::sizeRangeAction($colorOptions)])
+                        ->description('1. Choisissez les couleurs · 2. Choisissez les tailles · 3. Tapez le stock dans le tableau (ou « Même stock partout »).')
+                        ->headerActions([self::sizeRangeAction()])
                         ->schema([
-                            Repeater::make('variants')->hiddenLabel()->relationship()->columns(3)
-                                // Deux lignes identiques (même couleur + même taille) sont refusées
-                                ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
-                                    $seen = [];
-                                    foreach ((array) $value as $row) {
-                                        $key = ($row['color_id'] ?? '').'-'.($row['size_id'] ?? '');
-                                        if (isset($seen[$key])) {
-                                            $color = Color::find($row['color_id'] ?? 0)?->name ?? 'sans couleur';
-                                            $size = Size::find($row['size_id'] ?? 0)?->name ?? 'sans taille';
-                                            $fail("La combinaison {$color} / {$size} apparaît deux fois : gardez une seule ligne.");
-
-                                            return;
-                                        }
-                                        $seen[$key] = true;
-                                    }
-                                }])
-                                ->schema([
-                                    Select::make('color_id')->label('Couleur')->options($colorOptions)->allowHtml()->searchable(false)->placeholder('—'),
-                                    Select::make('size_id')->label('Taille')->options($sizeOptions)->placeholder('—'),
-                                    TextInput::make('stock')->label('Stock')->numeric()->default(0)->required()->minValue(0),
-                                ])
-                                ->addActionLabel('Ajouter une ligne')
-                                ->defaultItems(1)->reorderable(false)->collapsible(false)
-                                ->itemLabel(null),
+                            Grid::make(2)->schema([
+                                Select::make('stock_colors')->label('Couleurs')->multiple()->options($colorOptions)->allowHtml()
+                                    ->searchable()->live()->placeholder('Sans couleur')
+                                    ->helperText('Vide = produit sans couleur.'),
+                                Select::make('stock_sizes')->label('Tailles')->multiple()->options($sizeOptions)
+                                    ->searchable()->live()->placeholder('Taille unique')
+                                    ->helperText('Vide = taille unique. « Intervalle de pointures » : 34 → 41 en un clic.'),
+                            ]),
+                            ViewField::make('stock_matrix')->hiddenLabel()->view('filament.stock-matrix')->default([])
+                                ->viewData(fn (Get $get) => [
+                                    'matrixColors' => Color::whereIn('id', (array) $get('stock_colors'))->orderBy('position')->get()
+                                        ->mapWithKeys(fn ($c) => [$c->id => ['name' => $c->name, 'hex' => $c->hex]])->all(),
+                                    'matrixSizes' => Size::whereIn('id', (array) $get('stock_sizes'))->orderBy('position')->get()
+                                        ->pluck('name', 'id')->all(),
+                                ]),
                         ]),
                 ]),
                 Group::make()->columnSpan(1)->schema([
@@ -137,38 +128,35 @@ class ProductResource extends Resource
     }
 
     /**
-     * Bouton « Couleur + intervalle de tailles » : ex. babouches Rose de la pointure 34 à 37
-     * → 4 lignes (34, 35, 36, 37) créées d'un coup. Les pointures manquantes sont ajoutées automatiquement.
+     * Bouton « Intervalle de tailles » : ex. pointures 34 → 41 → les 8 tailles sont cochées d'un coup
+     * (les pointures manquantes sont créées automatiquement). Le stock se tape ensuite dans le tableau.
      */
-    private static function sizeRangeAction(\Closure $colorOptions): Action
+    private static function sizeRangeAction(): Action
     {
         $clothes = fn () => Size::where('type', 'vetement')->orderBy('position')->pluck('name', 'id')->all();
 
         return Action::make('sizeRange')
-            ->label('Couleur + intervalle de tailles')
+            ->label('Intervalle de pointures / tailles')
             ->icon(Heroicon::OutlinedSquaresPlus)
             ->link()
-            ->modalHeading('Ajouter une couleur avec un intervalle de tailles')
-            ->modalDescription('Toutes les tailles entre le minimum et le maximum sont ajoutées, avec le même stock pour chacune.')
+            ->modalHeading('Choisir un intervalle de tailles')
+            ->modalDescription('Toutes les tailles entre le minimum et le maximum sont ajoutées au tableau.')
             ->modalSubmitActionLabel('Ajouter les tailles')
-            ->modalWidth('lg')
+            ->modalWidth('md')
             ->schema([
-                Select::make('color_id')->label('Couleur')->options($colorOptions)->allowHtml()->searchable(false)
-                    ->placeholder('Sans couleur'),
                 ToggleButtons::make('type')->label('Type de tailles')->inline()->required()->live()
-                    ->options(['pointure' => 'Pointures (babouches)', 'vetement' => 'Tailles vêtement (S, M, L…)'])
+                    ->options(['pointure' => 'Pointures (babouches)', 'vetement' => 'Vêtements (S, M, L…)'])
                     ->default('pointure'),
                 Grid::make(2)->visible(fn (Get $get) => $get('type') === 'pointure')->schema([
                     TextInput::make('min')->label('Pointure min')->numeric()->integer()->minValue(15)->maxValue(50)->placeholder('34')
                         ->required(fn (Get $get) => $get('type') === 'pointure'),
-                    TextInput::make('max')->label('Pointure max')->numeric()->integer()->minValue(15)->maxValue(50)->placeholder('37')
+                    TextInput::make('max')->label('Pointure max')->numeric()->integer()->minValue(15)->maxValue(50)->placeholder('41')
                         ->required(fn (Get $get) => $get('type') === 'pointure'),
                 ]),
                 Grid::make(2)->visible(fn (Get $get) => $get('type') === 'vetement')->schema([
                     Select::make('from')->label('Taille min')->options($clothes)->required(fn (Get $get) => $get('type') === 'vetement'),
                     Select::make('to')->label('Taille max')->options($clothes)->required(fn (Get $get) => $get('type') === 'vetement'),
                 ]),
-                TextInput::make('stock')->label('Stock pour chaque taille')->numeric()->integer()->minValue(0)->default(1)->required(),
             ])
             ->action(function (array $data, Get $get, Set $set) {
                 $sizes = self::sizesInRange($data);
@@ -177,42 +165,59 @@ class ProductResource extends Resource
 
                     return;
                 }
-
-                $colorId = filled($data['color_id'] ?? null) ? (string) $data['color_id'] : null;
-                $rows = collect($get('variants') ?? [])
-                    // retire les lignes vides (ni couleur, ni taille, stock 0)
-                    ->reject(fn ($r) => blank($r['color_id'] ?? null) && blank($r['size_id'] ?? null) && (int) ($r['stock'] ?? 0) === 0);
-
-                $added = [];
-                $skipped = [];
-                foreach ($sizes as $size) {
-                    $exists = $rows->contains(fn ($r) => (string) ($r['color_id'] ?? '') === (string) $colorId && (string) ($r['size_id'] ?? '') === (string) $size->id);
-                    if ($exists) {
-                        $skipped[] = $size->name;
-
-                        continue;
-                    }
-                    $rows->put((string) Str::uuid(), ['color_id' => $colorId, 'size_id' => (string) $size->id, 'stock' => (int) $data['stock']]);
-                    $added[] = $size->name;
-                }
-                // Lignes rangées par couleur puis par taille (34, 35, 36…)
-                $pos = Size::pluck('position', 'id');
-                $colorPos = Color::pluck('position', 'id');
-                $rows = $rows->sortBy(fn ($r) => sprintf('%05d-%05d',
-                    filled($r['color_id'] ?? null) ? (int) ($colorPos[$r['color_id']] ?? 9999) : 99999,
-                    filled($r['size_id'] ?? null) ? (int) ($pos[$r['size_id']] ?? 9999) : 99999));
-                $set('variants', $rows->all());
-
-                $color = $colorId ? Color::find($colorId)?->name : 'sans couleur';
-                Notification::make()
-                    ->title($added ? count($added).' taille(s) ajoutée(s) — '.$color : 'Rien à ajouter')
-                    ->body(implode(' ', array_filter([
-                        $added ? 'Tailles : '.implode(', ', $added).'.' : null,
-                        $skipped ? 'Déjà présentes : '.implode(', ', $skipped).'.' : null,
-                        $added ? 'Cliquez sur « Enregistrer » pour valider.' : null,
-                    ])))
-                    ->success()->send();
+                $ids = collect((array) $get('stock_sizes'))->map(fn ($id) => (string) $id)
+                    ->merge($sizes->pluck('id')->map(fn ($id) => (string) $id))->unique()->values()->all();
+                $set('stock_sizes', $ids);
+                Notification::make()->title($sizes->count().' taille(s) ajoutée(s) au tableau')
+                    ->body('Tapez maintenant le stock, puis « Enregistrer ».')->success()->send();
             });
+    }
+
+    /**
+     * Enregistre le tableau couleurs × tailles dans les variantes du produit.
+     * Les changements de stock sont gardés dans l'historique (menu Stocks).
+     *
+     * @param  array<int, int|string>  $colors
+     * @param  array<int, int|string>  $sizes
+     * @param  array<string, int|string>  $matrix  « c{couleur}s{taille} » => stock
+     */
+    public static function syncVariants(Product $product, array $colors, array $sizes, array $matrix): void
+    {
+        $colors = array_values(array_unique(array_map('intval', array_filter($colors)))) ?: [0];
+        $sizes = array_values(array_unique(array_map('intval', array_filter($sizes)))) ?: [0];
+        $existing = $product->variants()->get();
+        $keep = [];
+
+        foreach ($colors as $c) {
+            foreach ($sizes as $s) {
+                $stock = max(0, (int) ($matrix['c'.$c.'s'.$s] ?? 0));
+                $variant = $existing->first(fn ($v) => (int) $v->color_id === $c && (int) $v->size_id === $s);
+                if (! $variant) {
+                    $variant = $product->variants()->create(['color_id' => $c ?: null, 'size_id' => $s ?: null, 'stock' => 0]);
+                    if ($stock > 0) {
+                        $variant->adjustStock($stock, 'reception_atelier', 'Ajouté depuis la fiche produit');
+                    }
+                } elseif ($variant->stock !== $stock) {
+                    $variant->adjustStock($stock - $variant->stock, 'correction', 'Modifié depuis la fiche produit');
+                }
+                $keep[] = $variant->id;
+            }
+        }
+
+        // Couleurs / tailles retirées du tableau
+        $product->variants()->whereNotIn('id', $keep)->delete();
+    }
+
+    /** Remplit le tableau à partir des variantes existantes (page « Modifier »). */
+    public static function variantsToForm(Product $product): array
+    {
+        $variants = $product->variants()->get();
+
+        return [
+            'stock_colors' => $variants->pluck('color_id')->filter()->unique()->map(fn ($id) => (string) $id)->values()->all(),
+            'stock_sizes' => $variants->pluck('size_id')->filter()->unique()->map(fn ($id) => (string) $id)->values()->all(),
+            'stock_matrix' => $variants->mapWithKeys(fn ($v) => ['c'.((int) $v->color_id).'s'.((int) $v->size_id) => (int) $v->stock])->all(),
+        ];
     }
 
     /** @return \Illuminate\Support\Collection<int, Size> */

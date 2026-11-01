@@ -42,8 +42,8 @@ class SizeResource extends Resource
         return $schema->columns(2)->components([
             TextInput::make('name')->label('Taille')->required()->maxLength(20)->placeholder('M ou 38'),
             Select::make('type')->label('Type')->options(Size::TYPES)->default('vetement')->required(),
-            TextInput::make('guide')->label('Guide des tailles')->columnSpanFull()->placeholder('Ex. : Tour de poitrine 89 – 94 cm')
-                ->helperText('Affiché sur la page « Guide des tailles » du site.'),
+            TextInput::make('guide')->label('Mesures (note interne)')->columnSpanFull()->placeholder('Ex. : Tour de poitrine 89 – 94 cm')
+                ->helperText('Facultatif : repère pour l’équipe (non affiché sur le site).'),
         ]);
     }
 
@@ -55,7 +55,7 @@ class SizeResource extends Resource
             ->reorderable('position')
             ->columns([
                 TextColumn::make('name')->label('Taille')->weight('bold')->badge()->color('gray'),
-                TextColumn::make('guide')->label('Guide des tailles')->placeholder('—'),
+                TextColumn::make('guide')->label('Mesures')->placeholder('—'),
                 TextColumn::make('used')->label('Utilisée par')->color('gray')->wrap()
                     ->state(fn (Size $r) => $r->variants->pluck('product.name')->filter()->unique()->implode(', ') ?: '—'),
             ])

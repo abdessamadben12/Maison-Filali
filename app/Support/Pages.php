@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use App\Models\Size;
-
 /**
  * Pages de contenu du site. Les textes marqués [à compléter] doivent être
  * remplis avec les informations officielles de Maison Filali.
@@ -13,7 +11,7 @@ class Pages
     /** @return array<int, string> */
     public static function slugs(): array
     {
-        return ['notre-histoire', 'comment-commander', 'guide-des-tailles', 'livraison-retours', 'mentions-legales', 'confidentialite', 'cgv'];
+        return ['notre-histoire', 'comment-commander', 'livraison-retours', 'mentions-legales', 'confidentialite', 'cgv'];
     }
 
     public static function find(string $slug): ?array
@@ -41,13 +39,6 @@ class Pages
 <li><strong>Notre équipe confirme</strong> votre commande sous 24 h. Vous suivez son statut sur le site (page « Suivre ma commande » ou votre espace client).</li>
 <li><strong>Payez à la livraison</strong>, en espèces, à réception de votre colis.</li>
 </ul><p>Une question ? Écrivez-nous sur WhatsApp au '.$phone.'.</p>',
-            ],
-            'guide-des-tailles' => [
-                'eyebrow' => 'Aide',
-                'title' => 'Guide des tailles',
-                'seo_title' => 'Guide des tailles — caftans, djellabas & babouches | Maison Filali',
-                'description' => 'Trouvez votre taille de caftan, takchita, djellaba ou babouches : tableau des mesures Maison Filali. Toutes nos pièces existent aussi sur mesure.',
-                'html' => self::sizeGuide(),
             ],
             'livraison-retours' => [
                 'eyebrow' => 'Aide',
@@ -84,28 +75,5 @@ class Pages
             ],
             default => null,
         };
-    }
-
-    private static function sizeGuide(): string
-    {
-        $html = '<p>Mesurez-vous sans serrer le mètre ruban. En cas de doute entre deux tailles, prenez la plus grande ou contactez-nous sur WhatsApp.</p>';
-        $clothes = Size::where('type', 'vetement')->orderBy('position')->get();
-        if ($clothes->count()) {
-            $html .= '<h2>Caftans, takchitas, djellabas</h2><table><tr><th>Taille</th><th>Mesure</th></tr>';
-            foreach ($clothes as $s) {
-                $html .= '<tr><td>'.e($s->name).'</td><td>'.e($s->guide ?: '—').'</td></tr>';
-            }
-            $html .= '</table>';
-        }
-        $shoes = Size::where('type', 'pointure')->orderBy('position')->get();
-        if ($shoes->count()) {
-            $html .= '<h2>Babouches</h2><table><tr><th>Pointure</th><th>Longueur du pied</th></tr>';
-            foreach ($shoes as $s) {
-                $html .= '<tr><td>'.e($s->name).'</td><td>'.e($s->guide ?: '—').'</td></tr>';
-            }
-            $html .= '</table>';
-        }
-
-        return $html.'<p>Toutes nos pièces peuvent aussi être réalisées sur mesure.</p>';
     }
 }

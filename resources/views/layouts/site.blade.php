@@ -155,7 +155,6 @@
                 <li class="eyebrow">Aide</li>
                 <li><a href="{{ route('page', 'comment-commander') }}">Comment commander</a></li>
                 <li><a href="{{ route('track') }}">Suivre ma commande</a></li>
-                <li><a href="{{ route('page', 'guide-des-tailles') }}">Guide des tailles</a></li>
                 <li><a href="{{ route('page', 'livraison-retours') }}">Livraison &amp; retours</a></li>
                 <li><a href="{{ route('contact') }}">Nous contacter</a></li>
             </ul>
@@ -190,7 +189,6 @@
             <ul>
                 <li><a href="{{ route('page', 'comment-commander') }}">Comment commander</a></li>
                 <li><a href="{{ route('track') }}">Suivre ma commande</a></li>
-                <li><a href="{{ route('page', 'guide-des-tailles') }}">Guide des tailles</a></li>
                 <li><a href="{{ route('page', 'livraison-retours') }}">Livraison &amp; retours</a></li>
                 <li><a href="{{ route('page', 'cgv') }}">Conditions générales</a></li>
                 <li><a href="{{ route('page', 'mentions-legales') }}">Mentions légales</a> · <a href="{{ route('page', 'confidentialite') }}">Confidentialité</a></li>
