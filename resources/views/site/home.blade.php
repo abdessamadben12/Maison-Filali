@@ -1,7 +1,8 @@
 @extends('layouts.site')
 
 @push('preload')
-    <link rel="preload" as="image" href="{{ asset('images/hero.webp') }}" imagesrcset="{{ asset('images/hero-800.webp') }} 800w, {{ asset('images/hero.webp') }} 1440w" imagesizes="100vw" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ asset('images/hero-defile-m.webp') }}" media="(max-width: 900px)" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ asset('images/hero-defile.webp') }}" imagesrcset="{{ asset('images/hero-defile-800.webp') }} 800w, {{ asset('images/hero-defile.webp') }} 1440w" imagesizes="100vw" media="(min-width: 901px)" fetchpriority="high">
 @endpush
 @push('head')
     {{ \App\Support\Seo::jsonLd(\App\Support\Seo::store()) }}
@@ -10,12 +11,15 @@
 
 @section('content')
 <section class="hero">
-    <img src="{{ asset('images/hero.webp') }}" srcset="{{ asset('images/hero-800.webp') }} 800w, {{ asset('images/hero.webp') }} 1440w" sizes="100vw" width="1440" height="823" fetchpriority="high" alt="Caftans, takchita et djellaba Maison Filali présentés dans un riad">
+    <picture>
+        <source media="(max-width: 900px)" srcset="{{ asset('images/hero-defile-m.webp') }}" width="900" height="980">
+        <img src="{{ asset('images/hero-defile.webp') }}" srcset="{{ asset('images/hero-defile-800.webp') }} 800w, {{ asset('images/hero-defile.webp') }} 1440w" sizes="100vw" width="1440" height="823" fetchpriority="high" alt="Défilé Maison Filali : caftans et djellabas portés avec des babouches assorties">
+    </picture>
     <div class="veil"></div>
     <div class="content">
-        <div class="kicker"><x-ico name="i-star" :s="16"/><span class="eyebrow">Maison Filali · Fait main</span></div>
-        <h1><span class="ln"><span>L'élégance</span></span><span class="ln"><span>marocaine,</span></span><span class="ln"><span><em>cousue main</em></span></span></h1>
-        <p>Caftans, takchitas, djellabas et babouches faits main à Fès. Livraison au Maroc et à l'international, paiement à la livraison au Maroc.</p>
+        <div class="kicker"><x-ico name="i-star" :s="16"/><span class="eyebrow">Maison Filali · L’art de l’élégance marocaine</span></div>
+        <h1><span class="ln"><span>L’élégance marocaine,</span></span><span class="ln"><span>un savoir-faire</span></span><span class="ln"><span><em>d’exception.</em></span></span></h1>
+        <p>Découvrez l’univers de Maison Filali, où l’authenticité de l’artisanat marocain rencontre l’élégance.</p>
         <div class="ctas">
             <a class="btn btn-green" href="{{ route('catalogue') }}">Découvrir la collection</a>
             <a class="btn btn-outline" href="{{ route('page', 'notre-histoire') }}">Notre histoire</a>

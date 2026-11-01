@@ -44,7 +44,7 @@
 .anim [data-anim].in .divider .ico{transform:none;opacity:1}
 
 /* ---------- Accueil : entrée du hero ---------- */
-.anim .hero>img{animation:mf-zoom-out 2.6s var(--ease-out) both;will-change:translate}
+.anim .hero>picture>img{animation:mf-zoom-out 2.6s var(--ease-out) both;will-change:translate}
 .hero h1 .ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
 .hero h1 .ln>span{display:block}
 .anim .hero h1 .ln>span{animation:mf-line 1.1s var(--ease-out) both}

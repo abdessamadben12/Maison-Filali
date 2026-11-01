@@ -47,7 +47,7 @@
 
     // 2. En-tête avec ombre + parallaxe légère (hero, mise en avant)
     var header = document.querySelector('.header');
-    var heroImg = document.querySelector('.hero > img');
+    var heroImg = document.querySelector('.hero > picture > img');
     var pic1 = document.querySelector('.feature .pic1');
     var pic2 = document.querySelector('.feature .pic2');
     var ticking = false;
