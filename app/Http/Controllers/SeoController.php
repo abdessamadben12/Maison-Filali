@@ -25,6 +25,14 @@ class SeoController extends Controller
                 $urls[] = ['loc' => route('product', $p), 'lastmod' => $p->updated_at, 'priority' => '0.8', 'changefreq' => 'weekly',
                     'images' => array_map(fn ($u) => ['loc' => $u, 'title' => $p->name], $p->original_image_urls)];
             }
+            $packs = \App\Models\Pack::active()->with('items.product')->get();
+            if ($packs->isNotEmpty()) {
+                $urls[] = ['loc' => route('packs.index'), 'priority' => '0.8', 'changefreq' => 'weekly'];
+                foreach ($packs as $pack) {
+                    $urls[] = ['loc' => route('packs.show', $pack), 'lastmod' => $pack->updated_at, 'priority' => '0.7', 'changefreq' => 'weekly',
+                        'images' => array_map(fn ($u) => ['loc' => $u, 'title' => $pack->name], $pack->original_image_urls)];
+                }
+            }
             $urls[] = ['loc' => route('contact'), 'priority' => '0.6', 'changefreq' => 'monthly'];
             foreach (Pages::slugs() as $slug) {
                 $urls[] = ['loc' => route('page', $slug), 'priority' => $slug === 'notre-histoire' ? '0.6' : '0.3', 'changefreq' => 'monthly'];

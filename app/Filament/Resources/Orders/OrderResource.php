@@ -142,7 +142,7 @@ class OrderResource extends Resource
                             ImageEntry::make('photo')->hiddenLabel()->state(fn ($record) => $record->product?->image_url)
                                 ->imageWidth(64)->imageHeight(84),
                             TextEntry::make('product_name')->hiddenLabel()->weight('medium')->size('lg')->columnSpan(2)
-                                ->helperText(fn ($record) => $record->variant_label.' · Qté '.$record->quantity),
+                                ->helperText(fn ($record) => ($record->pack_name ? '🎁 Pack « '.$record->pack_name.' » · ' : '').$record->variant_label.' · Qté '.$record->quantity),
                             TextEntry::make('total')->hiddenLabel()->formatStateUsing(fn ($state) => money($state))
                                 ->color('primary')->weight('bold')->alignEnd(),
                         ]),

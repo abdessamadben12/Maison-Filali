@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PackController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ Route::redirect('/maison/notre-maison', '/maison/notre-histoire', 301);
 Route::redirect('/maison/livraison-echanges', '/maison/livraison-retours', 301);
 Route::get('/collection/{category}', [ShopController::class, 'catalogue'])->name('category');
 Route::get('/produit/{product}', [ShopController::class, 'product'])->name('product');
+Route::get('/offres', [PackController::class, 'index'])->name('packs.index');
+Route::get('/offres/{pack}', [PackController::class, 'show'])->name('packs.show');
+Route::post('/offres/commande', [PackController::class, 'order'])->middleware('throttle:10,1')->name('packs.order');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
 Route::permanentRedirect('/maison/guide-des-tailles', '/boutique'); // page supprimée

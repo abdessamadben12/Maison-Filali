@@ -995,3 +995,59 @@ input,select,textarea{font:inherit;color:inherit}
 /* Commande hors Maroc */
 .intl-note{font-size:13px;line-height:20px;color:var(--muted);text-align:center}
 .intl-note a{color:var(--green);border-bottom:1px solid var(--gold)}
+
+/* ==================== Offres & packs ==================== */
+.offers-hero{background:var(--cream);padding:40px 0 48px;text-align:center}
+.offers-hero .crumbs{justify-content:center;margin-bottom:18px}
+.offers-hero h1{font-family:var(--serif);font-weight:500;font-size:60px;line-height:1.05;margin:10px 0 14px}
+.offers-hero p{max-width:620px;margin:0 auto;color:var(--text2);font-size:17px;line-height:28px}
+.offers{padding:56px 0 90px}
+.offers .empty{text-align:center;padding:40px 0;display:flex;flex-direction:column;align-items:center;gap:14px}
+.offers .empty h2{font-family:var(--serif);font-size:34px;font-weight:500}
+.pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,380px));justify-content:center;gap:28px}
+.pack-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-top:2px solid var(--gold);overflow:hidden;transition:box-shadow .3s,transform .3s}
+.pack-card:hover{box-shadow:0 18px 40px rgba(31,42,39,.12);transform:translateY(-3px)}
+.pack-card .media{position:relative;display:block;aspect-ratio:4/3;background:var(--sable);overflow:hidden}
+.pack-card .media img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.pack-card:hover .media img{transform:scale(1.04)}
+.pack-card .save{position:absolute;left:14px;top:14px;background:#9b2c2c;color:#fff;font-weight:600;font-size:15px;padding:6px 12px;border-radius:20px}
+.pack-card .out{position:absolute;right:14px;top:14px;background:var(--ink);color:#fff;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:6px 12px;border-radius:20px}
+.pack-card .body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+.pack-card .eyebrow{font-size:12px}
+.pack-card .name{font-family:var(--serif);font-weight:600;font-size:27px;line-height:1.15}
+.pack-card .incl{list-style:none;padding:0;margin:2px 0 4px;color:var(--text2);font-size:14px;line-height:22px}
+.pack-card .incl li::before{content:'✓';color:var(--green);font-weight:700;margin-right:7px}
+.pack-card .prices{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:auto}
+.pack-card .prices b{font-size:24px;color:var(--green);font-weight:600}
+.pack-card .prices del{color:var(--muted);font-size:16px}
+.pack-card .prices small{flex-basis:100%;color:#9b2c2c;font-weight:500;font-size:13px}
+.pack-card .until{font-size:13px;color:var(--muted)}
+.pack-card .btn{margin-top:8px;width:100%}
+.home-offers{padding:80px 0 20px}
+.home-offers .sec-more{text-align:center;margin-top:30px}
+
+/* Page d'une offre */
+.pack-page .pack-save{display:inline-block;background:rgba(155,44,44,.09);color:#9b2c2c;font-weight:600;font-size:14px;padding:6px 12px;border-radius:20px}
+.pack-page .pack-until{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:15px}
+.pack-items{display:flex;flex-direction:column;gap:12px;padding:6px 0 4px}
+.pack-items .lbl{font-weight:500;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.pack-item{display:flex;gap:14px;align-items:flex-start;padding:12px;border:1px solid var(--line);background:#fff;border-radius:10px}
+.pack-item.invalid{border-color:#b91c1c;box-shadow:0 0 0 3px rgba(185,28,28,.1)}
+.pack-item .thumb img{width:64px;height:84px;object-fit:cover;border-radius:32px 32px 0 0;display:block}
+.pack-item .info{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+.pack-item strong{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.2}
+.pack-item small{color:var(--muted);font-size:13px}
+.pack-item small.one{color:var(--text2)}
+.pack-item select{margin-top:4px;height:42px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:inherit;font-size:15px;background:#fff;max-width:320px}
+.pack-item .err{color:#b91c1c;font-size:13px}
+
+@media (max-width:900px){
+  .offers-hero{padding:22px 0 28px}
+  .offers-hero h1{font-size:38px}
+  .offers-hero p{font-size:15px;line-height:24px;padding:0 20px}
+  .offers{padding:28px 0 60px}
+  .pack-grid{grid-template-columns:1fr;gap:20px}
+  .pack-card .name{font-size:24px}
+  .home-offers{padding:44px 0 6px}
+  .pack-item select{max-width:none;width:100%}
+}

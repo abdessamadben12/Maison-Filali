@@ -81,7 +81,8 @@
         <nav class="nav" id="nav">
             <a href="{{ route('home') }}" @class(['active' => request()->routeIs('home')])>Accueil</a>
             <a href="{{ route('catalogue') }}" @class(['active' => request()->routeIs('catalogue') && ! request()->route('category')])>Boutique</a>
-            @foreach ($navCategories as $navCat)
+            @if ($hasPacks)<a href="{{ route('packs.index') }}" @class(['active' => request()->routeIs('packs.*')])>Offres</a>@endif
+            @foreach ($navCategories->take(max(1, $navCategories->count() - ($hasPacks ? 1 : 0))) as $navCat)
                 <a href="{{ route('category', $navCat) }}" @class(['active' => ($activeCategory ?? null) === $navCat->slug])>{{ $navCat->name }}</a>
             @endforeach
             <a href="{{ route('page', 'notre-histoire') }}" @class(['active' => request()->is('maison/notre-histoire')])>Notre histoire</a>
@@ -148,6 +149,7 @@
                     <li><a href="{{ route('category', $navCat) }}">{{ $navCat->name }}</a></li>
                 @endforeach
                 <li><a href="{{ route('catalogue', ['tri' => 'nouveautes']) }}">Nouveautés</a></li>
+                @if ($hasPacks)<li><a href="{{ route('packs.index') }}">Offres &amp; packs</a></li>@endif
             </ul>
         </div>
         <div>
@@ -179,6 +181,7 @@
             <summary>Boutique</summary>
             <ul>
                 <li><a href="{{ route('catalogue') }}">Toute la boutique</a></li>
+                @if ($hasPacks)<li><a href="{{ route('packs.index') }}">Offres &amp; packs</a></li>@endif
                 @foreach ($footerCategories ?? $navCategories as $navCat)
                     <li><a href="{{ route('category', $navCat) }}">{{ $navCat->name }}</a></li>
                 @endforeach

@@ -83,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
             // Menu mis en cache (vidé quand une catégorie est modifiée)
             $menu ??= Cache::store('file')->rememberForever('nav.categories.v2', fn () => Category::active()->where('in_menu', true)->take((int) config('shop.menu_max', 4))->get());
             $all ??= Cache::store('file')->rememberForever('footer.categories', fn () => Category::active()->get());
-            $view->with('navCategories', $menu)->with('footerCategories', $all);
+            $view->with('navCategories', $menu)->with('footerCategories', $all)->with('hasPacks', \App\Models\Pack::hasActive());
         });
     }
 }

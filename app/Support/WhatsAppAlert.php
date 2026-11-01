@@ -127,6 +127,9 @@ class WhatsAppAlert
 
             return $item->quantity.' × '.$item->product_name.($details ? ' ('.implode(', ', $details).')' : '');
         })->implode(' + ');
+        if ($pack = $order->items->firstWhere('pack_name')?->pack_name) {
+            $items = 'Pack « '.$pack.' » : '.$items;
+        }
 
         return [
             $order->number,

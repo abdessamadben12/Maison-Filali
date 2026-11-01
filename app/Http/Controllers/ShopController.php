@@ -22,6 +22,8 @@ class ShopController extends Controller
             'products' => $products,
             'featured' => Product::active()->with('variants.color', 'variants.size')->where('is_featured', true)->orderBy('position')->first()
                 ?? $products->first(),
+            // Offres mises en avant sur l'accueil (3 maximum)
+            'packs' => \App\Models\Pack::active()->where('is_featured', true)->with('items.product.variants')->orderBy('position')->take(3)->get(),
         ]);
     }
 

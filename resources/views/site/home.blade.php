@@ -69,6 +69,24 @@
     </div>
 </section>
 
+@if ($packs->isNotEmpty())
+<section class="home-offers">
+    <div class="wrap">
+        <div class="sec-head">
+            <span class="eyebrow">Offres du moment</span>
+            <h2 class="h-section">Nos packs à prix doux</h2>
+            <div class="divider"><span></span><x-ico name="i-star-big" :s="22"/><span></span></div>
+        </div>
+        <div class="pack-grid">
+            @foreach ($packs as $pack)
+                @include('partials.pack-card', ['pack' => $pack])
+            @endforeach
+        </div>
+        <p class="sec-more"><a class="btn btn-outline" href="{{ route('packs.index') }}">Voir toutes les offres</a></p>
+    </div>
+</section>
+@endif
+
 <section class="shop">
     <div class="wrap">
         <div class="top">

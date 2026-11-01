@@ -30,7 +30,7 @@
             @foreach ($order->items as $line)
                 <div class="oline">
                     <img src="{{ $line->product?->thumb_urls[0] ?? asset('images/logo-160.webp') }}" alt="">
-                    <div class="t"><strong>{{ $line->product_name }}</strong><small>{{ $line->variant_label }} · Qté {{ $line->quantity }}</small></div>
+                    <div class="t"><strong>{{ $line->product_name }}</strong><small>@if ($line->pack_name)Pack « {{ $line->pack_name }} » · @endif{{ $line->variant_label }} · Qté {{ $line->quantity }}</small></div>
                     <b>{{ money($line->total) }}</b>
                 </div>
             @endforeach
