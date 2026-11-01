@@ -18,6 +18,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -84,9 +89,25 @@ class ProductResource extends Resource
                             ->helperText('La première photo est la photo principale. Glissez pour changer l’ordre. JPG, PNG ou WebP : les photos sont converties automatiquement en WebP, sans perte de qualité.'),
                     ]),
                     Section::make('Couleurs, tailles & stock')
-                        ->description('Une ligne par combinaison couleur / taille. Laissez la couleur ou la taille vide si le produit n’en a pas.')
+                        ->description('Une ligne par combinaison couleur / taille. Laissez la couleur ou la taille vide si le produit n’en a pas. Astuce : « Couleur + intervalle de tailles » crée toutes les tailles d’une couleur en une fois.')
+                        ->headerActions([self::sizeRangeAction($colorOptions)])
                         ->schema([
                             Repeater::make('variants')->hiddenLabel()->relationship()->columns(3)
+                                // Deux lignes identiques (même couleur + même taille) sont refusées
+                                ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
+                                    $seen = [];
+                                    foreach ((array) $value as $row) {
+                                        $key = ($row['color_id'] ?? '').'-'.($row['size_id'] ?? '');
+                                        if (isset($seen[$key])) {
+                                            $color = Color::find($row['color_id'] ?? 0)?->name ?? 'sans couleur';
+                                            $size = Size::find($row['size_id'] ?? 0)?->name ?? 'sans taille';
+                                            $fail("La combinaison {$color} / {$size} apparaît deux fois : gardez une seule ligne.");
+
+                                            return;
+                                        }
+                                        $seen[$key] = true;
+                                    }
+                                }])
                                 ->schema([
                                     Select::make('color_id')->label('Couleur')->options($colorOptions)->allowHtml()->searchable(false)->placeholder('—'),
                                     Select::make('size_id')->label('Taille')->options($sizeOptions)->placeholder('—'),
@@ -113,6 +134,120 @@ class ProductResource extends Resource
                 ]),
             ]),
         ]);
+    }
+
+    /**
+     * Bouton « Couleur + intervalle de tailles » : ex. babouches Rose de la pointure 34 à 37
+     * → 4 lignes (34, 35, 36, 37) créées d'un coup. Les pointures manquantes sont ajoutées automatiquement.
+     */
+    private static function sizeRangeAction(\Closure $colorOptions): Action
+    {
+        $clothes = fn () => Size::where('type', 'vetement')->orderBy('position')->pluck('name', 'id')->all();
+
+        return Action::make('sizeRange')
+            ->label('Couleur + intervalle de tailles')
+            ->icon(Heroicon::OutlinedSquaresPlus)
+            ->link()
+            ->modalHeading('Ajouter une couleur avec un intervalle de tailles')
+            ->modalDescription('Toutes les tailles entre le minimum et le maximum sont ajoutées, avec le même stock pour chacune.')
+            ->modalSubmitActionLabel('Ajouter les tailles')
+            ->modalWidth('lg')
+            ->schema([
+                Select::make('color_id')->label('Couleur')->options($colorOptions)->allowHtml()->searchable(false)
+                    ->placeholder('Sans couleur'),
+                ToggleButtons::make('type')->label('Type de tailles')->inline()->required()->live()
+                    ->options(['pointure' => 'Pointures (babouches)', 'vetement' => 'Tailles vêtement (S, M, L…)'])
+                    ->default('pointure'),
+                Grid::make(2)->visible(fn (Get $get) => $get('type') === 'pointure')->schema([
+                    TextInput::make('min')->label('Pointure min')->numeric()->integer()->minValue(15)->maxValue(50)->placeholder('34')
+                        ->required(fn (Get $get) => $get('type') === 'pointure'),
+                    TextInput::make('max')->label('Pointure max')->numeric()->integer()->minValue(15)->maxValue(50)->placeholder('37')
+                        ->required(fn (Get $get) => $get('type') === 'pointure'),
+                ]),
+                Grid::make(2)->visible(fn (Get $get) => $get('type') === 'vetement')->schema([
+                    Select::make('from')->label('Taille min')->options($clothes)->required(fn (Get $get) => $get('type') === 'vetement'),
+                    Select::make('to')->label('Taille max')->options($clothes)->required(fn (Get $get) => $get('type') === 'vetement'),
+                ]),
+                TextInput::make('stock')->label('Stock pour chaque taille')->numeric()->integer()->minValue(0)->default(1)->required(),
+            ])
+            ->action(function (array $data, Get $get, Set $set) {
+                $sizes = self::sizesInRange($data);
+                if ($sizes->isEmpty()) {
+                    Notification::make()->title('Aucune taille dans cet intervalle')->warning()->send();
+
+                    return;
+                }
+
+                $colorId = filled($data['color_id'] ?? null) ? (string) $data['color_id'] : null;
+                $rows = collect($get('variants') ?? [])
+                    // retire les lignes vides (ni couleur, ni taille, stock 0)
+                    ->reject(fn ($r) => blank($r['color_id'] ?? null) && blank($r['size_id'] ?? null) && (int) ($r['stock'] ?? 0) === 0);
+
+                $added = [];
+                $skipped = [];
+                foreach ($sizes as $size) {
+                    $exists = $rows->contains(fn ($r) => (string) ($r['color_id'] ?? '') === (string) $colorId && (string) ($r['size_id'] ?? '') === (string) $size->id);
+                    if ($exists) {
+                        $skipped[] = $size->name;
+
+                        continue;
+                    }
+                    $rows->put((string) Str::uuid(), ['color_id' => $colorId, 'size_id' => (string) $size->id, 'stock' => (int) $data['stock']]);
+                    $added[] = $size->name;
+                }
+                // Lignes rangées par couleur puis par taille (34, 35, 36…)
+                $pos = Size::pluck('position', 'id');
+                $colorPos = Color::pluck('position', 'id');
+                $rows = $rows->sortBy(fn ($r) => sprintf('%05d-%05d',
+                    filled($r['color_id'] ?? null) ? (int) ($colorPos[$r['color_id']] ?? 9999) : 99999,
+                    filled($r['size_id'] ?? null) ? (int) ($pos[$r['size_id']] ?? 9999) : 99999));
+                $set('variants', $rows->all());
+
+                $color = $colorId ? Color::find($colorId)?->name : 'sans couleur';
+                Notification::make()
+                    ->title($added ? count($added).' taille(s) ajoutée(s) — '.$color : 'Rien à ajouter')
+                    ->body(implode(' ', array_filter([
+                        $added ? 'Tailles : '.implode(', ', $added).'.' : null,
+                        $skipped ? 'Déjà présentes : '.implode(', ', $skipped).'.' : null,
+                        $added ? 'Cliquez sur « Enregistrer » pour valider.' : null,
+                    ])))
+                    ->success()->send();
+            });
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Size> */
+    private static function sizesInRange(array $data)
+    {
+        if (($data['type'] ?? null) === 'vetement') {
+            $from = Size::find($data['from'] ?? 0);
+            $to = Size::find($data['to'] ?? 0);
+            if (! $from || ! $to) {
+                return collect();
+            }
+            [$a, $b] = [min($from->position, $to->position), max($from->position, $to->position)];
+
+            return Size::where('type', 'vetement')->whereBetween('position', [$a, $b])->orderBy('position')->get();
+        }
+
+        // Pointures : min et max dans n'importe quel ordre (37 → 34 = 34 → 37)
+        [$a, $b] = [min((int) $data['min'], (int) $data['max']), max((int) $data['min'], (int) $data['max'])];
+        $existing = Size::where('type', 'pointure')->get()->keyBy(fn ($s) => trim($s->name));
+        $created = false;
+        for ($n = $a; $n <= $b; $n++) {
+            if (! $existing->has((string) $n)) {
+                $existing->put((string) $n, Size::create(['name' => (string) $n, 'type' => 'pointure', 'position' => 0]));
+                $created = true;
+            }
+        }
+        if ($created) {
+            // Ranger toutes les pointures dans l'ordre numérique (après les tailles vêtement)
+            $start = (int) Size::where('type', 'vetement')->max('position') + 1;
+            Size::where('type', 'pointure')->get()
+                ->sortBy(fn ($s) => is_numeric($s->name) ? (float) $s->name : 999)
+                ->values()->each(fn ($s, $i) => $s->position === $start + $i ?: $s->update(['position' => $start + $i]));
+        }
+
+        return collect(range($a, $b))->map(fn ($n) => $existing->get((string) $n))->filter()->values();
     }
 
     public static function table(Table $table): Table

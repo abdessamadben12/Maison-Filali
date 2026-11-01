@@ -80,7 +80,8 @@ return [
 
     'locale' => env('APP_LOCALE', 'en'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    // Langue de secours = anglais : un texte non traduit s'affiche en anglais plutôt qu'en code brut (« filament-panels::… »)
+    'fallback_locale' => 'en',
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

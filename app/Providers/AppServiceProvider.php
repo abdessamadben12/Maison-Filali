@@ -15,7 +15,40 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->usePublicFolderOfHosting();
+    }
+
+    /**
+     * Hébergement mutualisé (LWS…) : souvent, le contenu de « public/ » est copié dans « htdocs / public_html »
+     * et le reste du projet est ailleurs. Laravel enregistrait alors les photos dans projet/public/uploads,
+     * un dossier que le site ne sert pas → photos invisibles (erreur 404).
+     * Ici, on utilise le dossier réellement servi (celui de index.php) pour les photos et images.
+     */
+    private function usePublicFolderOfHosting(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $custom = env('SHOP_PUBLIC_PATH'); // pour « php artisan » : chemin du dossier htdocs, si besoin
+            if ($custom && is_dir($custom)) {
+                $this->switchPublicPath(rtrim($custom, '/\\'));
+            }
+
+            return;
+        }
+
+        $script = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
+        if (! $script || basename($script) !== 'index.php') {
+            return;
+        }
+        $webRoot = dirname($script);
+        if ($webRoot !== realpath(public_path())) {
+            $this->switchPublicPath($webRoot);
+        }
+    }
+
+    private function switchPublicPath(string $path): void
+    {
+        $this->app->usePublicPath($path);
+        config(['filesystems.disks.uploads.root' => $path.DIRECTORY_SEPARATOR.'uploads']);
     }
 
     public function boot(): void

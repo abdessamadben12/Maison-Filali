@@ -10,7 +10,8 @@
     : 'Toute la boutique Maison Filali : caftans, takchitas, djellabas et babouches faits main à Fès. Livraison au Maroc et à l\'international.'))
 {{-- Pages filtrées / recherche : non indexées (évite le contenu dupliqué), liens suivis --}}
 @section('canonical', $isFiltered ? url()->current() : url()->current().($pageNo > 1 ? '?page='.$pageNo : ''))
-@if ($isFiltered)
+{{-- Page filtrée, ou boutique / collection encore vide : non indexée tant qu'il n'y a pas de produits --}}
+@if ($isFiltered || $products->total() === 0)
     @section('robots', 'noindex, follow')
 @endif
 @push('head')

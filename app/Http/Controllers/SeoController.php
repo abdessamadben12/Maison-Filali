@@ -17,7 +17,8 @@ class SeoController extends Controller
                 ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
                 ['loc' => route('catalogue'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ];
-            foreach (Category::active()->get() as $cat) {
+            // Collections vides exclues : Google les considère comme des pages sans contenu (« soft 404 »)
+            foreach (Category::active()->whereHas('products', fn ($q) => $q->active())->get() as $cat) {
                 $urls[] = ['loc' => route('category', $cat), 'lastmod' => $cat->updated_at, 'priority' => '0.8', 'changefreq' => 'weekly'];
             }
             foreach (Product::active()->orderBy('position')->get() as $p) {
