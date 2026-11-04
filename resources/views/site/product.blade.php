@@ -21,6 +21,7 @@
 @php($gallery = $product->gallery_urls)
 @php($colors = $product->availableColors(true))
 @php($sizes = $product->availableSizes())
+@php($colorPhotos = $product->colorPhotoIndexes())
 
 @section('content')
 <div class="wrap">
@@ -67,7 +68,7 @@
                 <div class="lbl"><span>Couleur : <b id="colorName">{{ $colors->first()->name }}</b></span></div>
                 <div class="colors">
                     @foreach ($colors as $c)
-                        <button type="button" data-color="{{ $c->id }}" data-name="{{ $c->name }}" style="background:{{ $c->hex }}" title="{{ $c->name }}" aria-label="{{ $c->name }}"></button>
+                        <button type="button" data-color="{{ $c->id }}" data-name="{{ $c->name }}" @isset($colorPhotos[$c->id]) data-photo="{{ $colorPhotos[$c->id] }}" @endisset style="background:{{ $c->hex }}" title="{{ $c->name }}" aria-label="{{ $c->name }}"></button>
                     @endforeach
                 </div>
             </div>

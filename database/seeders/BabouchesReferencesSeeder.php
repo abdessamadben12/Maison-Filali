@@ -10,53 +10,47 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * Catalogue babouches en daim par référence (photos WhatsApp du 01/11/2026) :
- *  - P… ajourées (motif floral découpé) ou lisses ;
- *  - C… à franges.
- * Une fiche produit par référence / couleur, avec sa photo.
+ * Babouches en daim (photos WhatsApp du 01/11/2026) : 3 modèles, chaque couleur = une variante.
+ *  - Babouches Ajourées (réf. atelier P…, motif floral découpé) ;
+ *  - Babouches Lisses (réf. P…, sans motif) ;
+ *  - Babouches à Franges (réf. C…).
+ * Chaque photo est liée à sa couleur par son nom de fichier (« …--vert-anis.jpg ») :
+ * sur la fiche produit, cliquer une couleur affiche sa photo.
  *
  * Commande : php artisan db:seed --class=BabouchesReferencesSeeder
- * Peut être relancée sans risque : rien n'est dupliqué, le stock saisi dans l'admin n'est pas écrasé.
- * Les photos doivent être dans public/uploads/products/.
+ * Peut être relancée sans risque. Supprime aussi les anciennes fiches « une fiche par référence »
+ * créées par la version précédente de ce fichier (désactivées seulement si elles ont des commandes).
  */
 class BabouchesReferencesSeeder extends Seeder
 {
     /** Prix par défaut (DH) — à ajuster dans l'admin si besoin. */
     private const PRIX = 280;
 
-    /** Stock de départ par pointure. */
+    /** Stock de départ par couleur et par pointure. */
     private const STOCK = 3;
 
     private const POINTURES = ['36', '37', '38', '39', '40', '41', '42', '43', '44'];
 
-    /** Couleurs (filtre du catalogue) ajoutées si elles n'existent pas encore. */
+    /** Teinte des couleurs créées si elles n'existent pas encore (les couleurs existantes gardent la leur). */
     private const HEX = [
         'Noir' => '#1A1A1A', 'Violet' => '#5B3A8C', 'Orange' => '#E0662B', 'Rouge' => '#C0282D',
-        'Taupe' => '#8C7B70', 'Turquoise' => '#3FB8C9', 'Moutarde' => '#D9A521', 'Gris' => '#8A939B',
-        'Vert anis' => '#9ACD32', 'Cognac' => '#8E4A2B', 'Camel' => '#B9773E', 'Vert' => '#2E9E44',
-        'Bleu roi' => '#2546C8', 'Bleu ciel' => '#3A8FD9',
-    ];
-
-    private const MODELES = [
-        'A' => [
-            'nom' => 'Babouches Ajourées',
-            'tagline' => 'Babouches en daim :couleur, motif floral ajouré découpé à la main.',
-            'description' => "Babouches mules en daim souple, motif floral ajouré découpé à la main et surpiqûres apparentes. Semelle cousue, confortables à la maison comme pour sortir.",
-        ],
-        'L' => [
-            'nom' => 'Babouches Lisses',
-            'tagline' => 'Babouches en daim :couleur, ligne épurée et coutures apparentes faites main.',
-            'description' => "Babouches mules en daim souple, sans motif, pour une allure sobre et élégante. Surpiqûres apparentes et semelle cousue à la main.",
-        ],
-        'C' => [
-            'nom' => 'Babouches à Franges',
-            'tagline' => 'Babouches en daim :couleur à franges, motif fleur ajouré.',
-            'description' => "Babouches mules en daim, franges sur l'empeigne et motif fleur découpé à la main. Surpiqûres apparentes et semelle cousue, un classique revisité.",
-        ],
+        'Taupe' => '#8C7B70', 'Moutarde' => '#D9A521', 'Gris' => '#8A939B', 'Vert anis' => '#9ACD32',
+        'Cognac' => '#B5702E', 'Camel' => '#B9773E', 'Vert' => '#2E9E44', 'Bleu roi' => '#2546C8',
+        'Terre cuite' => '#A0522D', 'Olive' => '#8A7A45', 'Gris perle' => '#B8B2A6', 'Aubergine' => '#6B2F45',
+        'Bronze' => '#7A5C30', 'Safran' => '#E07A10', 'Brique' => '#8B3A2E', 'Vert sapin' => '#1F4A40',
+        'Ocre' => '#C08A2E', 'Bois de rose' => '#9A4E55', 'Paprika' => '#C8432A', 'Grenat' => '#7A1E35',
+        'Nude' => '#D4A882', 'Brun olive' => '#6F5A35', 'Gris clair' => '#B5ACA2', 'Menthe' => '#5FB3A8',
+        'Noisette' => '#8A6A4C', "Vert d'eau" => '#4FA39A', 'Framboise' => '#B0153E', 'Tabac' => '#9A7A55',
+        'Caramel' => '#A0652E', 'Bleu canard' => '#1A5A63', 'Bleu azur' => '#2A86E0', 'Bleu indigo' => '#2E3F8F',
+        'Gris ardoise' => '#4A4E5C', 'Anthracite' => '#3C3B3D', 'Grège' => '#B8A898',
+        'Bordeaux' => '#6E1424', 'Chocolat' => '#4A2A22', 'Nuit' => '#1E2F5C', 'Sable' => '#C9B79A',
+        'Kaki' => '#4B4A3F', 'Rose' => '#E7958A', 'Fuchsia' => '#D12F5A', 'Émeraude' => '#0F4A3E', 'Ivoire' => '#F1E8D6',
     ];
 
     public function run(): void
     {
+        $this->supprimerAnciennesFiches();
+
         $categorie = Category::firstOrCreate(
             ['slug' => 'babouches'],
             ['name' => 'Babouches', 'description' => 'Babouches en cuir, cousues main.', 'is_active' => true, 'position' => 3],
@@ -66,117 +60,172 @@ class BabouchesReferencesSeeder extends Seeder
             ['position' => 10 + (int) $p - 36],
         ));
 
-        foreach ($this->references() as [$ref, $modele, $nom, $couleur, $photo]) {
-            $photo = 'products/'.$photo;
+        foreach ($this->modeles() as $m) {
+            $photos = collect($m['couleurs'])->map(fn ($c) => 'products/'.$c[2])->values()->all();
 
-            // P0018 = le produit existant « Babouches Ajourées Fuchsia » : on ajoute seulement la photo
-            if ($ref === 'P0018' && ($existant = Product::where('slug', 'babouches-ajourees-fuchsia')->first())) {
-                if (! in_array($photo, $existant->images ?? [], true)) {
-                    $existant->images = array_values(array_merge($existant->images ?? [], [$photo]));
-                    $existant->save();
-                }
-
-                continue;
-            }
-
-            $m = self::MODELES[$modele];
-            $slug = Str::slug($m['nom'].' '.$nom.' '.$ref);
-            $product = Product::firstOrNew(['slug' => $slug]);
+            $product = Product::firstOrNew(['slug' => $m['slug']]);
             if (! $product->exists) {
                 $product->fill([
                     'category_id' => $categorie->id,
-                    'name' => $m['nom'].' '.$nom,
-                    'tagline' => str_replace(':couleur', mb_strtolower($nom), $m['tagline']),
-                    'description' => $m['description'].($ref ? "\nRéférence : $ref." : ''),
+                    'name' => $m['nom'],
+                    'tagline' => $m['tagline'],
+                    'description' => $m['description'],
                     'materials' => "Daim (cuir velours), semelle cousue.\nBrosser avec une brosse à daim. Éviter l'eau.",
                     'price' => self::PRIX,
-                    'images' => [$photo],
                     'is_active' => true,
                     'is_new' => true,
-                    'is_featured' => false,
+                    'is_featured' => true,
                     'is_custom_possible' => false,
                     'position' => (int) Product::max('position') + 1,
                 ]);
-                $product->save();
             }
+            // Ajoute les photos manquantes (garde celles ajoutées depuis l'admin)
+            $product->images = array_values(array_unique(array_merge($product->images ?? [], $photos)));
+            $product->save();
 
-            $color = Color::firstOrCreate(
-                ['name' => $couleur],
-                ['hex' => self::HEX[$couleur] ?? '#999999', 'position' => (int) Color::max('position') + 1],
-            );
-            foreach ($sizes as $size) {
-                $product->variants()->firstOrCreate(
-                    ['color_id' => $color->id, 'size_id' => $size->id],
-                    ['stock' => self::STOCK],
+            foreach ($m['couleurs'] as [$ref, $nom]) {
+                $color = Color::firstOrCreate(
+                    ['name' => $nom],
+                    ['hex' => self::HEX[$nom] ?? '#999999', 'position' => (int) Color::max('position') + 1],
                 );
+                foreach ($sizes as $size) {
+                    $product->variants()->firstOrCreate(
+                        ['color_id' => $color->id, 'size_id' => $size->id],
+                        ['stock' => self::STOCK],
+                    );
+                }
             }
         }
     }
 
-    /** [référence, modèle (A ajourée / L lisse / C franges), nom de la couleur, couleur du filtre, photo] */
-    private function references(): array
+    /** Anciennes fiches « une par référence » (ex. babouches-ajourees-moutarde-p0039). */
+    private function supprimerAnciennesFiches(): void
+    {
+        $anciennes = Product::where('slug', 'like', 'babouches-%')->get()->filter(
+            fn ($p) => preg_match('/^babouches-(ajourees|lisses|a-franges)-.+-[pc]\d{4}$/', $p->slug)
+                || $p->slug === 'babouches-ajourees-gris-clair'
+        );
+        foreach ($anciennes as $p) {
+            $p->orderItems()->exists() ? $p->update(['is_active' => false]) : $p->delete();
+        }
+
+        // La photo P0018 avait été ajoutée au produit « Babouches Ajourées Fuchsia » : elle est maintenant dans le modèle ajouré
+        if ($f = Product::where('slug', 'babouches-ajourees-fuchsia')->first()) {
+            $images = array_values(array_diff($f->images ?? [], ['products/babouches-p0018.jpg']));
+            if ($images !== array_values($f->images ?? [])) {
+                $f->images = $images;
+                $f->save();
+            }
+        }
+
+        // « Babouches en Daim » (ajout précédent) : photos renommées pour être liées à leur couleur
+        if ($d = Product::where('slug', 'babouches-en-daim')->first()) {
+            $renommage = [
+            'products/babouches-daim-rose-1.jpg' => 'products/babouches-daim--rose.jpg',
+            'products/babouches-daim-couleurs-2.jpg' => 'products/babouches-daim-couleurs.jpg',
+            'products/babouches-daim-noir-3.jpg' => 'products/babouches-daim--noir.jpg',
+            'products/babouches-daim-noir-4.jpg' => 'products/babouches-daim-noir-2.jpg',
+            'products/babouches-daim-violet-5.jpg' => 'products/babouches-daim--violet.jpg',
+            'products/babouches-daim-sable-6.jpg' => 'products/babouches-daim--sable.jpg',
+            'products/babouches-daim-ivoire-7.jpg' => 'products/babouches-daim--ivoire.jpg',
+            'products/babouches-daim-atelier-8.jpg' => 'products/babouches-daim-atelier.jpg',
+            ];
+            $images = array_map(fn ($i) => $renommage[$i] ?? $i, $d->images ?? []);
+            if ($images !== ($d->images ?? [])) {
+                $d->images = $images;
+                $d->save();
+            }
+        }
+    }
+
+    /** [réf. atelier, couleur, photo] — la référence sert de repère, elle n'est pas affichée sur le site. */
+    private function modeles(): array
     {
         return [
-            ['P0032', 'A', 'Terre cuite', 'Cognac', 'babouches-p0032.jpg'],
-            ['P0013', 'A', 'Olive', 'Kaki', 'babouches-p0013.jpg'],
-            ['P0009', 'A', 'Noir', 'Noir', 'babouches-p0009.jpg'],
-            ['P0048', 'A', 'Gris perle', 'Gris', 'babouches-p0048.jpg'],
-            ['P0096', 'A', 'Taupe', 'Taupe', 'babouches-p0096.jpg'],
-            ['P0039', 'A', 'Moutarde', 'Moutarde', 'babouches-p0039.jpg'],
-            ['P0047', 'A', 'Kaki', 'Kaki', 'babouches-p0047.jpg'],
-            ['P0024', 'A', 'Bordeaux', 'Bordeaux', 'babouches-p0024.jpg'],
-            ['P0025', 'A', 'Aubergine', 'Prune', 'babouches-p0025.jpg'],
-            ['P0017', 'A', 'Cognac', 'Camel', 'babouches-p0017.jpg'],
-            ['P0027', 'A', 'Bronze', 'Kaki', 'babouches-p0027.jpg'],
-            ['P0022', 'A', 'Safran', 'Orange', 'babouches-p0022.jpg'],
-            ['P0023', 'A', 'Rouge', 'Rouge', 'babouches-p0023.jpg'],
-            ['P0035', 'A', 'Gris', 'Gris', 'babouches-p0035.jpg'],
-            ['P0014', 'A', 'Orange', 'Orange', 'babouches-p0014.jpg'],
-            ['P0021', 'A', 'Violet', 'Violet', 'babouches-p0021.jpg'],
-            ['P0026', 'A', 'Brique', 'Cognac', 'babouches-p0026.jpg'],
-            ['P0006', 'A', 'Bleu nuit', 'Nuit', 'babouches-p0006.jpg'],
-            ['P0033', 'A', 'Vert sapin', 'Émeraude', 'babouches-p0033.jpg'],
-            ['P0031', 'A', 'Ocre', 'Moutarde', 'babouches-p0031.jpg'],
-            ['P0028', 'A', 'Bois de rose', 'Rose', 'babouches-p0028.jpg'],
-            ['P0015', 'A', 'Paprika', 'Orange', 'babouches-p0015.jpg'],
-            ['P0073', 'A', 'Grenat', 'Bordeaux', 'babouches-p0073.jpg'],
-            ['P0038', 'A', 'Sable', 'Sable', 'babouches-p0038.jpg'],
-            ['P0088', 'A', 'Chocolat', 'Chocolat', 'babouches-p0088.jpg'],
-            ['P0004', 'A', 'Nude', 'Sable', 'babouches-p0004.jpg'],
-            ['P0034', 'A', 'Brun olive', 'Kaki', 'babouches-p0034.jpg'],
-            ['P0094', 'A', 'Rose ancien', 'Rose', 'babouches-p0094.jpg'],
-            ['P0092', 'A', 'Bleu roi', 'Bleu roi', 'babouches-p0092.jpg'],
-            ['P0091', 'A', 'Vert anis', 'Vert anis', 'babouches-p0091.jpg'],
-            ['', 'A', 'Gris clair', 'Gris', 'babouches-gris-clair.jpg'],
-            ['P0036', 'A', 'Émeraude', 'Émeraude', 'babouches-p0036.jpg'],
-            ['P0046', 'A', 'Menthe', 'Turquoise', 'babouches-p0046.jpg'],
-            ['P0018', 'A', 'Fuchsia', 'Fuchsia', 'babouches-p0018.jpg'],
-            ['P0029', 'A', 'Noisette', 'Taupe', 'babouches-p0029.jpg'],
-            ['P0020', 'L', 'Vert', 'Vert', 'babouches-p0020.jpg'],
-            ['P0056', 'L', 'Vert d\'eau', 'Turquoise', 'babouches-p0056.jpg'],
-            ['P0093', 'L', 'Noir', 'Noir', 'babouches-p0093.jpg'],
-            ['P0019', 'L', 'Framboise', 'Rouge', 'babouches-p0019.jpg'],
-            ['P0030', 'L', 'Taupe', 'Taupe', 'babouches-p0030.jpg'],
-            ['P0037', 'L', 'Noir profond', 'Noir', 'babouches-p0037.jpg'],
-            ['P0044', 'L', 'Tabac', 'Camel', 'babouches-p0044.jpg'],
-            ['P0061', 'L', 'Caramel', 'Camel', 'babouches-p0061.jpg'],
-            ['P0079', 'L', 'Écru', 'Ivoire', 'babouches-p0079.jpg'],
-            ['P0016', 'L', 'Bleu canard', 'Émeraude', 'babouches-p0016.jpg'],
-            ['P0071', 'L', 'Beige', 'Sable', 'babouches-p0071.jpg'],
-            ['C0033', 'C', 'Bleu indigo', 'Bleu roi', 'babouches-c0033.jpg'],
-            ['C0035', 'C', 'Chocolat', 'Chocolat', 'babouches-c0035.jpg'],
-            ['C0039', 'C', 'Bleu roi', 'Bleu roi', 'babouches-c0039.jpg'],
-            ['C0041', 'C', 'Vert sapin', 'Émeraude', 'babouches-c0041.jpg'],
-            ['C0040', 'C', 'Camel', 'Camel', 'babouches-c0040.jpg'],
-            ['C0032', 'C', 'Noir', 'Noir', 'babouches-c0032.jpg'],
-            ['C0020', 'C', 'Gris ardoise', 'Gris', 'babouches-c0020.jpg'],
-            ['C0031', 'C', 'Bleu marine', 'Nuit', 'babouches-c0031.jpg'],
-            ['C0038', 'C', 'Taupe', 'Taupe', 'babouches-c0038.jpg'],
-            ['C0034', 'C', 'Bleu azur', 'Bleu ciel', 'babouches-c0034.jpg'],
-            ['C0030', 'C', 'Kaki', 'Kaki', 'babouches-c0030.jpg'],
-            ['C0037', 'C', 'Anthracite', 'Gris', 'babouches-c0037.jpg'],
-            ['C0036', 'C', 'Grège', 'Sable', 'babouches-c0036.jpg'],
-            ['C0042', 'C', 'Bordeaux', 'Bordeaux', 'babouches-c0042.jpg'],
+            [
+                'slug' => 'babouches-ajourees-en-daim',
+                'nom' => 'Babouches Ajourées en Daim',
+                'tagline' => 'Babouches en daim souple, motif floral ajouré découpé à la main. 35 couleurs.',
+                'description' => "Babouches mules en daim souple, motif floral ajouré découpé à la main et surpiqûres apparentes. Semelle cousue, confortables à la maison comme pour sortir. Choisissez votre couleur parmi 35 teintes.",
+                'couleurs' => [
+                ['P0039', 'Moutarde', 'babouches-ajourees--moutarde.jpg'],
+                ['P0032', 'Terre cuite', 'babouches-ajourees--terre-cuite.jpg'],
+                ['P0013', 'Olive', 'babouches-ajourees--olive.jpg'],
+                ['P0009', 'Noir', 'babouches-ajourees--noir.jpg'],
+                ['P0048', 'Gris perle', 'babouches-ajourees--gris-perle.jpg'],
+                ['P0096', 'Taupe', 'babouches-ajourees--taupe.jpg'],
+                ['P0047', 'Kaki', 'babouches-ajourees--kaki.jpg'],
+                ['P0024', 'Bordeaux', 'babouches-ajourees--bordeaux.jpg'],
+                ['P0025', 'Aubergine', 'babouches-ajourees--aubergine.jpg'],
+                ['P0017', 'Cognac', 'babouches-ajourees--cognac.jpg'],
+                ['P0027', 'Bronze', 'babouches-ajourees--bronze.jpg'],
+                ['P0022', 'Safran', 'babouches-ajourees--safran.jpg'],
+                ['P0023', 'Rouge', 'babouches-ajourees--rouge.jpg'],
+                ['P0035', 'Gris', 'babouches-ajourees--gris.jpg'],
+                ['P0014', 'Orange', 'babouches-ajourees--orange.jpg'],
+                ['P0021', 'Violet', 'babouches-ajourees--violet.jpg'],
+                ['P0026', 'Brique', 'babouches-ajourees--brique.jpg'],
+                ['P0006', 'Nuit', 'babouches-ajourees--nuit.jpg'],
+                ['P0033', 'Vert sapin', 'babouches-ajourees--vert-sapin.jpg'],
+                ['P0031', 'Ocre', 'babouches-ajourees--ocre.jpg'],
+                ['P0028', 'Bois de rose', 'babouches-ajourees--bois-de-rose.jpg'],
+                ['P0015', 'Paprika', 'babouches-ajourees--paprika.jpg'],
+                ['P0073', 'Grenat', 'babouches-ajourees--grenat.jpg'],
+                ['P0038', 'Sable', 'babouches-ajourees--sable.jpg'],
+                ['P0088', 'Chocolat', 'babouches-ajourees--chocolat.jpg'],
+                ['P0004', 'Nude', 'babouches-ajourees--nude.jpg'],
+                ['P0034', 'Brun olive', 'babouches-ajourees--brun-olive.jpg'],
+                ['P0094', 'Rose', 'babouches-ajourees--rose.jpg'],
+                ['P0092', 'Bleu roi', 'babouches-ajourees--bleu-roi.jpg'],
+                ['P0091', 'Vert anis', 'babouches-ajourees--vert-anis.jpg'],
+                ['P0024 ?', 'Gris clair', 'babouches-ajourees--gris-clair.jpg'],
+                ['P0036', 'Émeraude', 'babouches-ajourees--emeraude.jpg'],
+                ['P0046', 'Menthe', 'babouches-ajourees--menthe.jpg'],
+                ['P0018', 'Fuchsia', 'babouches-ajourees--fuchsia.jpg'],
+                ['P0029', 'Noisette', 'babouches-ajourees--noisette.jpg'],
+                ],
+            ],
+            [
+                'slug' => 'babouches-lisses-en-daim',
+                'nom' => 'Babouches Lisses en Daim',
+                'tagline' => 'Babouches en daim, ligne épurée et coutures apparentes faites main.',
+                'description' => "Babouches mules en daim souple, sans motif, pour une allure sobre et élégante. Surpiqûres apparentes et semelle cousue à la main.",
+                'couleurs' => [
+                ['P0020', 'Vert', 'babouches-lisses--vert.jpg'],
+                ['P0056', 'Vert d\'eau', 'babouches-lisses--vert-deau.jpg'],
+                ['P0093', 'Noir', 'babouches-lisses--noir.jpg'],
+                ['P0037', 'Noir', 'babouches-lisses-noir-2.jpg'],
+                ['P0019', 'Framboise', 'babouches-lisses--framboise.jpg'],
+                ['P0030', 'Taupe', 'babouches-lisses--taupe.jpg'],
+                ['P0044', 'Tabac', 'babouches-lisses--tabac.jpg'],
+                ['P0061', 'Caramel', 'babouches-lisses--caramel.jpg'],
+                ['P0079', 'Ivoire', 'babouches-lisses--ivoire.jpg'],
+                ['P0016', 'Bleu canard', 'babouches-lisses--bleu-canard.jpg'],
+                ['P0071', 'Sable', 'babouches-lisses--sable.jpg'],
+                ],
+            ],
+            [
+                'slug' => 'babouches-a-franges-en-daim',
+                'nom' => 'Babouches à Franges en Daim',
+                'tagline' => 'Babouches en daim à franges, motif fleur ajouré découpé à la main.',
+                'description' => "Babouches mules en daim, franges sur l'empeigne et motif fleur découpé à la main. Surpiqûres apparentes et semelle cousue, un classique revisité.",
+                'couleurs' => [
+                ['C0034', 'Bleu azur', 'babouches-a-franges--bleu-azur.jpg'],
+                ['C0033', 'Bleu indigo', 'babouches-a-franges--bleu-indigo.jpg'],
+                ['C0035', 'Chocolat', 'babouches-a-franges--chocolat.jpg'],
+                ['C0039', 'Bleu roi', 'babouches-a-franges--bleu-roi.jpg'],
+                ['C0041', 'Vert sapin', 'babouches-a-franges--vert-sapin.jpg'],
+                ['C0040', 'Camel', 'babouches-a-franges--camel.jpg'],
+                ['C0032', 'Noir', 'babouches-a-franges--noir.jpg'],
+                ['C0020', 'Gris ardoise', 'babouches-a-franges--gris-ardoise.jpg'],
+                ['C0031', 'Nuit', 'babouches-a-franges--nuit.jpg'],
+                ['C0038', 'Taupe', 'babouches-a-franges--taupe.jpg'],
+                ['C0030', 'Kaki', 'babouches-a-franges--kaki.jpg'],
+                ['C0037', 'Anthracite', 'babouches-a-franges--anthracite.jpg'],
+                ['C0036', 'Grège', 'babouches-a-franges--grege.jpg'],
+                ['C0042', 'Bordeaux', 'babouches-a-franges--bordeaux.jpg'],
+                ],
+            ],
         ];
     }
 }

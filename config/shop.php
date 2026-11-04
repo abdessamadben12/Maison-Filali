@@ -51,7 +51,7 @@ return [
     'low_stock' => 2,
 
     // Version des fichiers CSS/JS (à changer pour vider le cache des navigateurs)
-    'assets_version' => '1.5.13',
+    'assets_version' => '1.5.14',
 
     'cities' => [
         'Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan',

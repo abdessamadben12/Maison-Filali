@@ -242,9 +242,22 @@
         if (Number(qtyInput.value) > Number(qtyInput.max)) qtyInput.value = qtyInput.max;
     }
 
+    // Couleur choisie → afficher sa photo (si une photo est liée à la couleur)
+    function showColorPhoto(color, instant) {
+        var btn = colorBtns.find(function (x) { return Number(x.getAttribute('data-color')) === color; });
+        var i = btn ? btn.getAttribute('data-photo') : null;
+        if (i === null || i === '') return;
+        i = Number(i);
+        var thumb = root.querySelectorAll('.thumbs button')[i];
+        if (thumb) thumb.click();
+        var tr = document.getElementById('mTrack');
+        if (tr && tr.children[i]) tr.scrollTo({ left: i * tr.clientWidth, behavior: instant ? 'auto' : 'smooth' });
+    }
+
     colorBtns.forEach(function (b) {
         b.addEventListener('click', function () {
             state.color = Number(b.getAttribute('data-color'));
+            showColorPhoto(state.color);
             if (!state.custom && state.size && stockFor(state.color, state.size) <= 0) state.size = null;
             render();
         });
@@ -278,6 +291,7 @@
     }
     if (cfg.oldCustom) state.custom = true;
     if (cfg.oldQty) qtyInput.value = cfg.oldQty;
+    if (state.color) showColorPhoto(state.color, true);
     render();
 
     // ---------- Modale de commande ----------

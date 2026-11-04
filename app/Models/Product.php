@@ -120,6 +120,32 @@ class Product extends Model
         return $this->total_stock > 0;
     }
 
+    /**
+     * Photo à afficher pour chaque couleur : [color_id => index dans la galerie].
+     * Une photo est liée à une couleur quand son nom de fichier se termine par « --nom-de-la-couleur »
+     * (ex. products/babouches-ajourees--vert-anis.jpg → couleur « Vert anis »).
+     *
+     * @return array<int, int>
+     */
+    public function colorPhotoIndexes(): array
+    {
+        $bySlug = [];
+        foreach (array_values($this->images ?? []) as $i => $path) {
+            $name = pathinfo((string) $path, PATHINFO_FILENAME);
+            if (str_contains($name, '--')) {
+                $bySlug[Str::afterLast($name, '--')] ??= $i;
+            }
+        }
+        if (! $bySlug) {
+            return [];
+        }
+
+        return $this->availableColors()
+            ->mapWithKeys(fn ($c) => [$c->id => $bySlug[Str::slug($c->name)] ?? null])
+            ->filter(fn ($i) => $i !== null)
+            ->all();
+    }
+
     /** Couleurs proposées pour ce produit (ordre défini dans l’admin). */
     public function availableColors(bool $withStockFirst = false): Collection
     {
